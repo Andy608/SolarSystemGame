@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class OrbitTrail : MonoBehaviour
 {
-    public TrailRenderer trailRenderer;
-
     private void Start()
     {
-        trailRenderer.
+
     }
 }
