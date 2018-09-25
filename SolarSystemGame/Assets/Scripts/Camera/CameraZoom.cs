@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Camera))]
 public class CameraZoom : MonoBehaviour
 {
     public float zoomSpeed = 1000.0f;
@@ -16,7 +17,12 @@ public class CameraZoom : MonoBehaviour
     private void Start()
     {
         objCamera = GetComponent<Camera>();
+        UpdateCameraSize(currentSize);
+    }
 
+    private void OnValidate()
+    {
+        objCamera = GetComponent<Camera>();
         UpdateCameraSize(currentSize);
     }
 

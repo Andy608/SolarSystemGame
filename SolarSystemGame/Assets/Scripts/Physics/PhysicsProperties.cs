@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Gravitate))]
 public class PhysicsProperties : MonoBehaviour
 {
     //This is going to be in a manager script. But for now it's here due to crunch time.
