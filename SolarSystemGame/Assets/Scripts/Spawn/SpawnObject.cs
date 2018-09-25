@@ -10,28 +10,21 @@ public class SpawnObject : MonoBehaviour
     private Vector3 planetPosition;
     private const float Z_PLANE = 0;
 
-    //private void Start()
-    //{
-    //    EventTrigger trigger = GetComponent<EventTrigger>();
-    //    EventTrigger.Entry entry = new EventTrigger.Entry();
-    //    entry.eventID = EventTriggerType.Drag;
-    //    entry.callback.AddListener((data) => { OnDragDelegate((PointerEventData)data); });
-    //    trigger.triggers.Add(entry);
-    //}
-
-    private void Update()
+    private void OnEnable()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            planetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            planetPosition.z = Z_PLANE;
-
-            Instantiate(planetPrefab, planetPosition, Quaternion.identity);
-        }
+        Managers.InputHandler.OnTap += Spawn;
     }
 
-    //public void OnDragDelegate(PointerEventData data)
-    //{
+    private void OnDisable()
+    {
+        Managers.InputHandler.OnTap -= Spawn;
+    }
 
-    //}
+    private void Spawn(Touch t)
+    {
+        planetPosition = Camera.main.ScreenToWorldPoint(t.position);
+        planetPosition.z = Z_PLANE;
+
+        Instantiate(planetPrefab, planetPosition, Quaternion.identity);
+    }
 }
