@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114395241068320112}
   - component: {fileID: 58431272657831038}
   - component: {fileID: 114994879953449612}
+  - component: {fileID: 114987953556755280}
   - component: {fileID: 96437163858207664}
   m_Layer: 8
   m_Name: Prefab_Star
@@ -40,7 +41,7 @@ Transform:
   m_GameObject: {fileID: 1836311719073716}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.02, y: 2.58, z: 0}
-  m_LocalScale: {x: 4.8950887, y: 4.8950887, z: 0}
+  m_LocalScale: {x: 15.266778, y: 15.266778, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -183,6 +184,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49d56f781ecb3cc48a134fbefa1fc061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objPhysicsProperties: {fileID: 0}
+--- !u!114 &114987953556755280
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1836311719073716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464a002422361942a556ef3e003faf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114994879953449612
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -203,8 +216,8 @@ MonoBehaviour:
   lastVelocity: {x: 0, y: 0}
   lastAcceleration: {x: 0, y: 0}
   acceleration: {x: 0, y: 0}
-  initialMass: 10000
-  circumference: 3.1328568
+  initialMass: 314000
+  circumference: 9.770738
   objRigidbody: {fileID: 0}
   objGravitate: {fileID: 0}
 --- !u!212 &212829823545440354

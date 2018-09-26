@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(Gravitate))]
+[RequireComponent(typeof(SpaceObject))]
 public class PhysicsProperties : MonoBehaviour
 {
-    //This is going to be in a manager script. But for now it's here due to crunch time.
-    private static CameraFollow cameraFollow;
+    public delegate void AbsorbedAction(SpaceObject absorber);
+    public static event AbsorbedAction OnAbsorbed;
 
     //Different depending on the object type.
     public float radiusScaleCoefficient = 1.0f;
@@ -51,22 +50,28 @@ public class PhysicsProperties : MonoBehaviour
         }
     }
 
+    [HideInInspector] public float SqrRadius
+    {
+        get
+        {
+            float r = Radius;
+            return r * r;
+        }
+    }
+
     [HideInInspector] public float circumference;
 
 
-    [HideInInspector] public Rigidbody2D objRigidbody;
-    [HideInInspector] public Gravitate objGravitate;
+    [HideInInspector] public SpaceObject objSpaceObject;
 
     private void Start()
     {
-        cameraFollow = GameObject.Find("Main Camera").GetComponent<CameraFollow>();
+        objSpaceObject = GetComponent<SpaceObject>();
 
-        objRigidbody = GetComponent<Rigidbody2D>();
-        objGravitate = GetComponent<Gravitate>();
         currentMass = initialMass;
-        objRigidbody.mass = currentMass;
+        objSpaceObject.objRigidbody.mass = currentMass;
 
-        objRigidbody.velocity = initialVelocity;
+        objSpaceObject.objRigidbody.velocity = initialVelocity;
 
         UpdateRadiusAndScale();
     }
@@ -77,22 +82,17 @@ public class PhysicsProperties : MonoBehaviour
         UpdateRadiusAndScale();
     }
 
-    private void FixedUpdate()
-    {
-        //UpdatePhysicsProperties();
-    }
-
     public void UpdatePhysicsProperties()
     {
         lastAcceleration = acceleration;
-        acceleration = (objRigidbody.velocity - lastVelocity) / Time.fixedDeltaTime;
-        lastVelocity = objRigidbody.velocity;
+        acceleration = (objSpaceObject.objRigidbody.velocity - lastVelocity) / Time.fixedDeltaTime;
+        lastVelocity = objSpaceObject.objRigidbody.velocity;
     }
 
-    public static void AbsorbObject(PhysicsProperties obj1, PhysicsProperties obj2)
+    public static void AbsorbObject(SpaceObject obj1, SpaceObject obj2)
     {
-        PhysicsProperties absorber;
-        PhysicsProperties absorbed;
+        SpaceObject absorber;
+        SpaceObject absorbed;
 
         if (obj1.objRigidbody.mass >= obj2.objRigidbody.mass)
         {
@@ -106,18 +106,22 @@ public class PhysicsProperties : MonoBehaviour
         }
 
         //Add the impact force.
-        absorber.objRigidbody.AddForce(absorbed.objRigidbody.velocity * absorbed.currentMass, ForceMode2D.Impulse);
+        absorber.objRigidbody.AddForce(absorbed.objRigidbody.velocity * absorbed.objPhysicsProperties.currentMass, ForceMode2D.Impulse);
 
-        absorber.currentMass += absorbed.currentMass;
-        absorber.objRigidbody.mass = absorber.currentMass;
-        absorber.UpdateRadiusAndScale();
+        absorber.objPhysicsProperties.currentMass += absorbed.objPhysicsProperties.currentMass;
+        absorber.objRigidbody.mass = absorber.objPhysicsProperties.currentMass;
+        absorber.objPhysicsProperties.UpdateRadiusAndScale();
 
-        //CameraFollow will be accessable from a manager script in the future.
-        if (absorbed.gameObject == cameraFollow.objTarget)
+        //If the target is absorbed, make the new target the absorber.
+        //if (absorbed == Managers.CameraState.Instance.objCameraMove.ObjTarget)
+        //{
+        if (OnAbsorbed != null)
         {
-            cameraFollow.objTarget = absorber.gameObject;
-            Debug.Log("NEW TARGET");
+            OnAbsorbed(absorber);
         }
+
+            //Debug.Log("NEW TARGET");
+        //}
 
         Destroy(absorbed.gameObject);
     }

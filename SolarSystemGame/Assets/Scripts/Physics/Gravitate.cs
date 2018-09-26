@@ -8,61 +8,29 @@ public class Gravitate : MonoBehaviour
     //Gravitational constant
     private static readonly float G = 0.0667408f;
 
-    //The list of all the objects that are affected by gravity.
-    private static List<Gravitate> gravitators;
-
-    private PhysicsProperties objPhysicsProperties;
+    public SpaceObject objSpaceObj;
+    public PhysicsProperties objPhysicsProperties;
 
     private void Start()
     {
+        objSpaceObj = GetComponent<SpaceObject>();
         objPhysicsProperties = GetComponent<PhysicsProperties>();
     }
 
-    private void OnEnable()
+    public void ApplyGravity(Gravitate objToGravitate)
     {
-        if (gravitators == null)
-        {
-            gravitators = new List<Gravitate>();
-        }
+        Rigidbody2D rbToGravitate = objToGravitate.objSpaceObj.objRigidbody;
 
-        gravitators.Add(this);
-    }
-
-    private void OnDisable()
-    {
-        gravitators.Remove(this);
-    }
-
-	private void FixedUpdate ()
-    {
-        for (int i = 0; i < gravitators.Count; ++i)
-        {
-            Gravitate gravitate = gravitators[i];
-
-            if (gravitate != this)
-            {
-                ApplyGravity(gravitate);
-            }
-        }
-
-        objPhysicsProperties.UpdatePhysicsProperties();
-    }
-
-    private void ApplyGravity(Gravitate objToGravitate)
-    {
-        Rigidbody2D rbToGravitate = objToGravitate.objPhysicsProperties.objRigidbody;
-
-        Vector2 direction = objPhysicsProperties.objRigidbody.position - rbToGravitate.position;
+        Vector2 direction = objSpaceObj.objRigidbody.position - rbToGravitate.position;
         float distanceSquared = direction.sqrMagnitude;
 
-        //Radius is half the scale. This doesn't work because world units are different from scale.
         float distanceFromCenter = (objPhysicsProperties.Radius + objToGravitate.objPhysicsProperties.Radius);
 
         //Debug.Log("Dist from center: " + distanceFromCenter + " | Distance: " + direction.magnitude);
 
         if (direction.magnitude > distanceFromCenter)
         {
-            float gravitationMag = G * (objPhysicsProperties.objRigidbody.mass * rbToGravitate.mass) / distanceSquared;
+            float gravitationMag = G * (objSpaceObj.objRigidbody.mass * rbToGravitate.mass) / distanceSquared;
             Vector2 force = direction.normalized * gravitationMag;
 
             rbToGravitate.AddForce(force, ForceMode2D.Force);
@@ -70,7 +38,7 @@ public class Gravitate : MonoBehaviour
         else
         {
             //Absorb!
-            PhysicsProperties.AbsorbObject(objPhysicsProperties, objToGravitate.objPhysicsProperties);
+            PhysicsProperties.AbsorbObject(objSpaceObj, objToGravitate.objSpaceObj);
         }
     }
 }
