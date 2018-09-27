@@ -33,7 +33,7 @@ public class Gravitate : MonoBehaviour
             float gravitationMag = G * (objSpaceObj.objRigidbody.mass * rbToGravitate.mass) / distanceSquared;
             Vector2 force = direction.normalized * gravitationMag;
 
-            rbToGravitate.AddForce(force, ForceMode2D.Force);
+            rbToGravitate.AddRelativeForce(force, ForceMode2D.Force);
         }
         else
         {

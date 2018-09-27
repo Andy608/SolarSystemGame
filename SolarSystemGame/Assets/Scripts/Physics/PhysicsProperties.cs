@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(SpaceObject))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class PhysicsProperties : MonoBehaviour
 {
     public delegate void AbsorbedAction(SpaceObject absorber);
@@ -42,6 +43,9 @@ public class PhysicsProperties : MonoBehaviour
     public float initialMass;
     private float currentMass;
 
+    [HideInInspector] public float circumference;
+    [HideInInspector] public SpaceObject objSpaceObject;
+
     [HideInInspector] public float Radius
     {
         get
@@ -59,11 +63,6 @@ public class PhysicsProperties : MonoBehaviour
         }
     }
 
-    [HideInInspector] public float circumference;
-
-
-    [HideInInspector] public SpaceObject objSpaceObject;
-
     private void Start()
     {
         objSpaceObject = GetComponent<SpaceObject>();
@@ -79,6 +78,7 @@ public class PhysicsProperties : MonoBehaviour
     private void OnValidate()
     {
         currentMass = initialMass;
+        GetComponent<Rigidbody2D>().mass = currentMass;
         UpdateRadiusAndScale();
     }
 
@@ -106,7 +106,9 @@ public class PhysicsProperties : MonoBehaviour
         }
 
         //Add the impact force.
-        absorber.objRigidbody.AddForce(absorbed.objRigidbody.velocity * absorbed.objPhysicsProperties.currentMass, ForceMode2D.Impulse);
+
+        //We need to experiment with this. This is wrong.
+        absorber.objRigidbody.AddRelativeForce(absorbed.objRigidbody.velocity * absorbed.objPhysicsProperties.currentMass, ForceMode2D.Impulse);
 
         absorber.objPhysicsProperties.currentMass += absorbed.objPhysicsProperties.currentMass;
         absorber.objRigidbody.mass = absorber.objPhysicsProperties.currentMass;

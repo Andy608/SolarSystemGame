@@ -54,6 +54,8 @@ namespace Managers
 
         private void OnEnable()
         {
+            ObjectTracker.OnObjectSpawned += OnObjectSpawned;
+
             PhysicsProperties.OnAbsorbed += OnBiggestTargetAbsorbed;
             ObjectTracker.OnObjectSpawned += OnBiggestTargetUpdate;
 
@@ -63,6 +65,8 @@ namespace Managers
 
         private void OnDisable()
         {
+            ObjectTracker.OnObjectSpawned -= OnObjectSpawned;
+
             PhysicsProperties.OnAbsorbed -= OnBiggestTargetAbsorbed;
             ObjectTracker.OnObjectSpawned -= OnBiggestTargetUpdate;
 
@@ -92,6 +96,17 @@ namespace Managers
             return currentCameraState == state;
         }
 
+        public void OnObjectSpawned(SpaceObject spawnedObj)
+        {
+            //SpaceObject target = objCameraMove.ObjTarget;
+
+            //if (currentCameraState != EnumCameraState.NO_FOLLOW && target)
+            //{
+            //    spawnedObj.objRigidbody.velocity = target.objRigidbody.velocity;
+            //    spawnedObj.objRigidbody.AddRelativeForce(target.objPhysicsProperties.acceleration);
+            //}
+        }
+
         public void OnBiggestTargetAbsorbed(SpaceObject absorber)
         {
             if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
@@ -100,7 +115,7 @@ namespace Managers
             }
         }
 
-        public void OnBiggestTargetUpdate()
+        public void OnBiggestTargetUpdate(SpaceObject spawnedObj)
         {
             if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
             {

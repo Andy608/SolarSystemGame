@@ -337,6 +337,15 @@ Prefab:
       propertyPath: orthographic size
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 114891206817180462, guid: 2f84d5a1d2b93ff4baba544843702c3a,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1171306698471008, guid: 2f84d5a1d2b93ff4baba544843702c3a, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f84d5a1d2b93ff4baba544843702c3a, type: 2}
   m_IsPrefabAsset: 0
@@ -541,6 +550,11 @@ Prefab:
     - target: {fileID: 4960612976742926, guid: c0a65550a85dd1440a6c1453f2cdd78d, type: 2}
       propertyPath: m_LocalScale.y
       value: 7.1408086
+      objectReference: {fileID: 0}
+    - target: {fileID: 50588665942885188, guid: c0a65550a85dd1440a6c1453f2cdd78d,
+        type: 2}
+      propertyPath: m_Mass
+      value: 31400
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0a65550a85dd1440a6c1453f2cdd78d, type: 2}
@@ -790,7 +804,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1243928141}
+      - m_Target: {fileID: 0}
         m_MethodName: TogglePause
         m_Mode: 1
         m_Arguments:
@@ -866,6 +880,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1878818191}
   - component: {fileID: 1878818192}
+  - component: {fileID: 1878818193}
   m_Layer: 0
   m_Name: ObjectManager
   m_TagString: Untagged
@@ -899,6 +914,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   planetPrefab: {fileID: 1640520982342700, guid: 2df09dd1e2b45b544add3ea5aef4894e,
     type: 2}
+--- !u!114 &1878818193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1878818190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7773ba5050d7764a95de91d34746a99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1907413774
 GameObject:
   m_ObjectHideFlags: 0

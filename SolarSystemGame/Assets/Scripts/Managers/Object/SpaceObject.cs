@@ -25,6 +25,7 @@ public class SpaceObject : MonoBehaviour
         objPhysicsProperties = GetComponent<PhysicsProperties>();
 
         Managers.ObjectTracker.Instance.RegisterObject(this);
+        Debug.Log("REGISTER");
     }
 
     private void OnDisable()
@@ -67,6 +68,12 @@ public class SpaceObject : MonoBehaviour
         }
     }
 
+    //private IEnumerator SetJustSpawned(bool val)
+    //{
+    //    yield return new WaitForEndOfFrame();
+    //    justSpawned = val;
+    //}
+
     public bool IsSelected
     {
         get
@@ -77,6 +84,34 @@ public class SpaceObject : MonoBehaviour
         set
         {
             isSelected = value;
+        }
+    }
+
+    private void Start()
+    {
+        SpaceObject targetObj = Managers.CameraState.Instance.objCameraMove.ObjTarget;
+
+        if (targetObj)
+        {
+            //transform.Translate(targetObj.objRigidbody.velocity * Time.fixedDeltaTime);
+            //Managers.CameraState.Instance.objCameraMove.MatchVelocityOfTarget(this);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (Managers.GameState.Instance.IsState(Managers.GameState.EnumGameState.RUNNING))
+        {
+            if (JustSpawned)
+            {
+                SpaceObject cameraTarget = Managers.CameraState.Instance.objCameraMove.ObjTarget;
+                if (!Managers.CameraState.Instance.IsState(Managers.CameraState.EnumCameraState.NO_FOLLOW) &&
+                    cameraTarget)
+                {
+                    //transform.Translate(cameraTarget.objRigidbody.velocity * Time.fixedDeltaTime);
+                    //Managers.CameraState.Instance.objCameraMove.MatchVelocityOfTarget(this);
+                }
+            }
         }
     }
 }

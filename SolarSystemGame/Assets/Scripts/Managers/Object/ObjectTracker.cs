@@ -10,7 +10,7 @@ namespace Managers
         public delegate void SelectedObjectChangeAction();
         public static event SelectedObjectChangeAction OnSelectedObjectChanged;
 
-        public delegate void SpawnObjectAction();
+        public delegate void SpawnObjectAction(SpaceObject spawnedObj);
         public static event SpawnObjectAction OnObjectSpawned;
 
         //Plane that all objects are on.
@@ -27,11 +27,22 @@ namespace Managers
         //Holds the current active object.
         private SpaceObject selectedObj = null;
 
+        //Holds the most massive object in the scene.
+        private SpaceObject mostMassiveObj = null;
+
         private static Vector3 spawnPosition = new Vector3();
         private static Vector3 touchPosition = new Vector3();
         private static Vector3 dragPosition = new Vector3();
 
         public GameObject planetPrefab;
+
+        public List<SpaceObject> ObjectsInUniverse
+        {
+            get
+            {
+                return objectsInUniverse;
+            }
+        }
 
         public SpaceObject SelectedObj
         {
@@ -51,28 +62,40 @@ namespace Managers
             }
         }
 
+        public SpaceObject MostMassiveObj
+        {
+            get
+            {
+                return mostMassiveObj;
+            }
+        }
+
         private void OnEnable()
         {
-            Managers.GameState.OnGamePaused += HandlePause;
-            Managers.GameState.OnGameUnPaused += HandleUnPause;
+            GameState.OnGamePaused += HandlePause;
+            GameState.OnGameUnPaused += HandleUnPause;
 
-            Managers.InputHandler.OnTap += HandleTap;
+            InputHandler.OnTap += HandleTap;
 
-            Managers.InputHandler.OnDragBegan += HandleDragBegan;
-            Managers.InputHandler.OnDragHeld += HandleDragHeld;
-            Managers.InputHandler.OnDragEnded += HandleDragEnded;
+            InputHandler.OnDragBegan += HandleDragBegan;
+            InputHandler.OnDragHeld += HandleDragHeld;
+            InputHandler.OnDragEnded += HandleDragEnded;
+
+            PhysicsProperties.OnAbsorbed += HandleAbsorb;
         }
 
         private void OnDisable()
         {
-            Managers.GameState.OnGamePaused -= HandlePause;
-            Managers.GameState.OnGameUnPaused -= HandleUnPause;
+            GameState.OnGamePaused -= HandlePause;
+            GameState.OnGameUnPaused -= HandleUnPause;
 
-            Managers.InputHandler.OnTap -= HandleTap;
+            InputHandler.OnTap -= HandleTap;
 
-            Managers.InputHandler.OnDragBegan -= HandleDragBegan;
-            Managers.InputHandler.OnDragHeld -= HandleDragHeld;
-            Managers.InputHandler.OnDragEnded -= HandleDragEnded;
+            InputHandler.OnDragBegan -= HandleDragBegan;
+            InputHandler.OnDragHeld -= HandleDragHeld;
+            InputHandler.OnDragEnded -= HandleDragEnded;
+
+            PhysicsProperties.OnAbsorbed -= HandleAbsorb;
         }
 
         public void RegisterObject(SpaceObject spaceObj)
@@ -213,31 +236,49 @@ namespace Managers
 
         private void HandleTap(Touch touch)
         {
+            Debug.Log("TAP");
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            //Tries to set the target. If it can't, the target is set to null.
-            bool setTarget = SetSelectedObject(target);
-
-            if (!setTarget)
+            if (selectedObj)
+            {
+                SetSelectedObject(target);
+            }
+            else
             {
                 SpawnAndSelectObject(touch);
                 selectedObj.JustSpawned = false;
             }
+
+            ////Tries to set the target. If it can't, the target is set to null.
+            //bool setTarget = SetSelectedObject(target);//True if selected a target, false if null
+
+            //if (!setTarget)
+            //{
+            //    SpawnAndSelectObject(touch);
+            //    selectedObj.JustSpawned = false;
+            //}
         }
 
         private void HandleDragBegan(Touch touch)
         {
+            Debug.Log("DRAG");
             //if (selectedObj)
             //{
             //    SetSelectedObject(null);
             //}
 
-            SpawnAndSelectObject(touch);
+            TouchPositionToWorldVector3(touch, ref touchPosition);
+            SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            //Make a ghost method that pauses it in it and changes the image to be slightly transparent
-            GhostObj(selectedObj);
-            
+            if (!target)
+            {
+                SpawnAndSelectObject(touch);
+
+                //Make a ghost method that pauses it in it and changes the image to be slightly transparent
+                GhostObj(selectedObj);
+            }
+
             //else if (selectedObj.GetComponent<SpaceObject>().JustSpawned)
             //{
             //    //Get distance from selected object to touch position
@@ -274,14 +315,14 @@ namespace Managers
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
 
-                Vector3 distance = dragPosition - selectedObj.transform.position;
+                Vector2 distance = dragPosition - selectedObj.transform.position;
 
                 //Remove the arrow image.
 
-                //Set the velocity to the distance times a scale factor that works for the game.
-                selectedObj.objRigidbody.velocity = distance;
-
                 selectedObj.JustSpawned = false;
+
+                //Set the velocity to the distance times a scale factor that works for the game.
+                selectedObj.objRigidbody.velocity += distance;
 
                 UnGhostObj();
 
@@ -340,12 +381,16 @@ namespace Managers
 
             if (obj)
             {
+                UpdateMostMassiveObj();
+
+                SpaceObject objSpaceObj = obj.GetComponent<SpaceObject>();
+
                 if (OnObjectSpawned != null)
                 {
-                    OnObjectSpawned();
+                    OnObjectSpawned(objSpaceObj);
                 }
 
-                return obj.GetComponent<SpaceObject>();
+                return objSpaceObj;
             }
             else
             {
@@ -377,27 +422,36 @@ namespace Managers
             position.z = OBJECT_Z_PLANE;
         }
 
-        public SpaceObject GetMostMassiveObject()
+        public void UpdateMostMassiveObj()
         {
-            SpaceObject mostMassive = null;
-
-            if (objectsInUniverse.Count > 0)
+            if (objectsInUniverse.Count == 0)
             {
-                mostMassive = objectsInUniverse[0];
+                mostMassiveObj = null;
+                return;
             }
-
-            //You could also merge sort this and then take the last element,
-            //if you are worried about speed in the future. Although that might
-            //be a lot of memory usage on a phone.
-            foreach (SpaceObject obj in objectsInUniverse)
+            else
             {
-                if (obj.objRigidbody.mass > mostMassive.objRigidbody.mass)
+                mostMassiveObj = objectsInUniverse[0];
+
+                //You could also merge sort this and then take the last element,
+                //if you are worried about speed in the future. Although that might
+                //be a lot of memory usage on a phone.
+                foreach (SpaceObject obj in objectsInUniverse)
                 {
-                    mostMassive = obj;
+                    if (mostMassiveObj != obj)
+                    {
+                        if (mostMassiveObj.objRigidbody.mass < obj.objRigidbody.mass)
+                        {
+                            mostMassiveObj = obj;
+                        }
+                    }
                 }
             }
+        }
 
-            return mostMassive;
+        private void HandleAbsorb(SpaceObject absorber)
+        {
+            UpdateMostMassiveObj();
         }
     }
 }
