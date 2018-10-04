@@ -27,7 +27,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1640520982342700
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 58502108501211660}
   - component: {fileID: 114689616399063018}
   - component: {fileID: 114302607495981282}
+  - component: {fileID: 114130551894912552}
   m_Layer: 8
   m_Name: Prefab_Planet
   m_TagString: Planet
@@ -111,6 +112,17 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.32
+--- !u!114 &114130551894912552
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1640520982342700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98ff297a9061d0c489d3a0514f29c926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114134518289400252
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -138,6 +150,7 @@ MonoBehaviour:
   objRigidbody: {fileID: 0}
   objGravitate: {fileID: 0}
   objPhysicsProperties: {fileID: 0}
+  objOrbitTracker: {fileID: 0}
 --- !u!114 &114689616399063018
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -173,7 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vertexSpacing: 0.1
-  maxTailLength: 30
+  maxTrailTime: 1
 --- !u!120 &120507713824134348
 LineRenderer:
   m_ObjectHideFlags: 1

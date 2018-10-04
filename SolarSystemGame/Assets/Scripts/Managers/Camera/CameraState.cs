@@ -107,7 +107,7 @@ namespace Managers
             //}
         }
 
-        public void OnBiggestTargetAbsorbed(SpaceObject absorber)
+        public void OnBiggestTargetAbsorbed(SpaceObject absorber, SpaceObject absorbed)
         {
             if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
             {
@@ -123,7 +123,7 @@ namespace Managers
             }
         }
 
-        public void OnSelectedTargetAbsorbed(SpaceObject absorber)
+        public void OnSelectedTargetAbsorbed(SpaceObject absorber, SpaceObject absorbed)
         {
             if (currentCameraState == EnumCameraState.FOLLOW_SELECTED)
             {
@@ -149,7 +149,7 @@ namespace Managers
             {
                 if (OnFollowBiggest != null)
                 {
-                    Debug.Log("BIGGEST FIRED");
+                    //Debug.Log("BIGGEST FIRED");
                     OnFollowBiggest();
                 }
             }
@@ -157,7 +157,7 @@ namespace Managers
             {
                 if (OnFollowSelected != null)
                 {
-                    Debug.Log("SELECTED FIRED");
+                    //Debug.Log("SELECTED FIRED");
                     OnFollowSelected();
                 }
             }

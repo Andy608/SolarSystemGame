@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PhysicsProperties : MonoBehaviour
 {
-    public delegate void AbsorbedAction(SpaceObject absorber);
+    public delegate void AbsorbedAction(SpaceObject absorber, SpaceObject absorbed);
     public static event AbsorbedAction OnAbsorbed;
 
     //Different depending on the object type.
@@ -119,7 +119,7 @@ public class PhysicsProperties : MonoBehaviour
         //{
         if (OnAbsorbed != null)
         {
-            OnAbsorbed(absorber);
+            OnAbsorbed(absorber, absorbed);
         }
 
             //Debug.Log("NEW TARGET");

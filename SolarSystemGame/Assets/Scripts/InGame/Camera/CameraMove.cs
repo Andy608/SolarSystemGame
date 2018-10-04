@@ -81,7 +81,7 @@ public class CameraMove : MonoBehaviour
         //^^ Make this a method call in ObjectTracker manager.
         SpaceObject mostMassiveObj = Managers.ObjectTracker.Instance.MostMassiveObj;
 
-        Debug.Log(mostMassiveObj);
+        //Debug.Log(mostMassiveObj);
 
         if (OnCameraTargetChanged != null && mostMassiveObj != objTarget)
         {

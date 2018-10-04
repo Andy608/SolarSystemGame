@@ -147,6 +147,8 @@ namespace Managers
 
         private void HandlePause()
         {
+            Debug.Log("PAUSE PAUSE");
+
             for (int i = 0; i < activeObjectsInUniverse.Count; ++i)
             {
                 PauseObj(activeObjectsInUniverse[i]);
@@ -165,6 +167,8 @@ namespace Managers
 
         private void PauseObj(SpaceObject obj)
         {
+            Debug.Log("PAUSE");
+
             if (pausedObjectsInUniverse == null)
             {
                 pausedObjectsInUniverse = new List<SpaceObject>();
@@ -236,19 +240,34 @@ namespace Managers
 
         private void HandleTap(Touch touch)
         {
-            Debug.Log("TAP");
+            //Debug.Log("TAP");
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            if (selectedObj)
+            //Tap, if intersects with target, make select
+            //Otherwise spawn new object.
+
+            if (target)
             {
                 SetSelectedObject(target);
             }
             else
             {
-                SpawnAndSelectObject(touch);
-                selectedObj.JustSpawned = false;
+                SpawnObject(touch).IsJustSpawned = true;
+                SetSelectedObject(null);
             }
+
+            //if (selectedObj)
+            //{
+            //    SetSelectedObject(target);
+            //}
+            //else
+            //{
+            //    SpawnAndSelectObject(touch);
+            //    selectedObj.JustSpawned = false;
+            //}
+
+            ///////
 
             ////Tries to set the target. If it can't, the target is set to null.
             //bool setTarget = SetSelectedObject(target);//True if selected a target, false if null
@@ -273,10 +292,12 @@ namespace Managers
 
             if (!target)
             {
-                SpawnAndSelectObject(touch);
+                //SpawnAndSelectObject(touch);
 
-                //Make a ghost method that pauses it in it and changes the image to be slightly transparent
-                GhostObj(selectedObj);
+                ////Make a ghost method that pauses it in it and changes the image to be slightly transparent
+                //GhostObj(selectedObj);
+
+                GhostObj(SpawnObject(touch));
             }
 
             //else if (selectedObj.GetComponent<SpaceObject>().JustSpawned)
@@ -294,7 +315,7 @@ namespace Managers
 
         private void HandleDragHeld(Touch touch)
         {
-            if (selectedObj && selectedObj.JustSpawned)
+            if (selectedObj && selectedObj.IsJustSpawned)
             {
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
@@ -310,19 +331,19 @@ namespace Managers
         private void HandleDragEnded(Touch touch)
         {
             //Set the velocity to the vector created in the other drag events
-            if (selectedObj && selectedObj.JustSpawned)
+            if (ghostObject && ghostObject.IsJustSpawned)
             {
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
 
-                Vector2 distance = dragPosition - selectedObj.transform.position;
+                Vector2 distance = dragPosition - ghostObject.transform.position;
 
                 //Remove the arrow image.
 
-                selectedObj.JustSpawned = false;
+                ghostObject.IsJustSpawned = false;
 
                 //Set the velocity to the distance times a scale factor that works for the game.
-                selectedObj.objRigidbody.velocity += distance;
+                ghostObject.objRigidbody.velocity += distance;
 
                 UnGhostObj();
 
@@ -449,7 +470,7 @@ namespace Managers
             }
         }
 
-        private void HandleAbsorb(SpaceObject absorber)
+        private void HandleAbsorb(SpaceObject absorber, SpaceObject absorbed)
         {
             UpdateMostMassiveObj();
         }
