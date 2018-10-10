@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SpaceObject))]
 [RequireComponent(typeof(PhysicsProperties))]
 public class Gravitate : MonoBehaviour
 {
@@ -16,8 +17,10 @@ public class Gravitate : MonoBehaviour
     //Gravitational constant
     private static readonly float G = 0.0667408f;
 
-    public SpaceObject objSpaceObj;
-    public PhysicsProperties objPhysicsProperties;
+    private SpaceObject objSpaceObj;
+    private PhysicsProperties objPhysicsProperties;
+
+    public PhysicsProperties ObjPhysicsProperties { get { return objPhysicsProperties; } }
 
     private List<Gravitate> gravitatingObjects = new List<Gravitate>();
 

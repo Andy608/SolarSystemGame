@@ -140,14 +140,14 @@ namespace Managers
                         }
                     }
 
-                    gravitator.objPhysicsProperties.UpdatePhysicsProperties();
+                    //gravitator.ObjPhysicsProperties.UpdatePhysicsProperties();
                 }
             }
         }
 
         private void HandlePause()
         {
-            Debug.Log("PAUSE PAUSE");
+            //Debug.Log("PAUSE PAUSE");
 
             for (int i = 0; i < activeObjectsInUniverse.Count; ++i)
             {
@@ -167,7 +167,7 @@ namespace Managers
 
         private void PauseObj(SpaceObject obj)
         {
-            Debug.Log("PAUSE");
+            //Debug.Log("PAUSE");
 
             if (pausedObjectsInUniverse == null)
             {
@@ -281,7 +281,7 @@ namespace Managers
 
         private void HandleDragBegan(Touch touch)
         {
-            Debug.Log("DRAG");
+            //Debug.Log("DRAG");
             //if (selectedObj)
             //{
             //    SetSelectedObject(null);

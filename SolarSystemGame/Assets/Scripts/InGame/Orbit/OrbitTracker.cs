@@ -82,13 +82,13 @@ public class OrbitTracker : MonoBehaviour
     {
         int i = 0;
 
-        Debug.Log("UNTRACKED");
+        //Debug.Log("UNTRACKED");
 
         for (; i < childList.Count; ++i)
         {
             if (childList[i].OrbitChild.GetInstanceID() == orbiter.GetInstanceID())
             {
-                Debug.Log("Remove orbit.");
+                //Debug.Log("Remove orbit.");
                 childList.RemoveAt(i);
                 break;
             }

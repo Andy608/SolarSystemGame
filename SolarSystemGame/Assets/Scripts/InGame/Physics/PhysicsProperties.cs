@@ -4,70 +4,35 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpaceObject))]
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(SpaceObjectType))]
 public class PhysicsProperties : MonoBehaviour
 {
     public delegate void AbsorbedAction(SpaceObject absorber, SpaceObject absorbed);
     public static event AbsorbedAction OnAbsorbed;
 
-    //Different depending on the object type.
-    public float radiusScaleCoefficient = 1.0f;
-
-    public Vector2 initialVelocity = new Vector2();
-
-    //NOT USED YET
-    public float maxRadius = 5.0f;
-    public float minRadius = 0.1f;
-
-    //By default image is 100px by 100px
-    public float imageWidth = 100;
-    public float pixelsPerWorldUnit = 100.0f;
-
     private float currentScale = 1.0f;
     private Vector3 currentScaleAsVec = new Vector3();
 
-    [HideInInspector] public Vector2 lastVelocity = new Vector2();
+    [SerializeField] private Vector2 initialVelocity = new Vector2();
+    //private Vector2 lastVelocity = new Vector2();
+    //private Vector2 lastAcceleration = new Vector2();
+    //private Vector2 acceleration = new Vector2();
 
-    [HideInInspector] public Vector2 lastAcceleration = new Vector2();
-    [HideInInspector] public Vector2 acceleration = new Vector2();
-
-    //Here for now - This will depend on each object type - get info from their script regarding density, etc.
-
-    //scale = r * 2
-    //r = 1 scale -> 10000 mass
-    //r = 0.1 -> 100 mass
-    //r = 0.01 => = 1 mass
-    //mass = 100 * scale * scale
-    //mass / 100 = scale * scale
-    //scale = sqrt(mass / 100)
-
-    public float initialMass;
     private float currentMass;
 
-    [HideInInspector] public float circumference;
-    [HideInInspector] public SpaceObject objSpaceObject;
+    private float circumference;
+    private SpaceObject objSpaceObject;
+    private SpaceObjectType objSpaceObjectType;
 
-    [HideInInspector] public float Radius
-    {
-        get
-        {
-            return circumference / 2.0f;
-        }
-    }
-
-    [HideInInspector] public float SqrRadius
-    {
-        get
-        {
-            float r = Radius;
-            return r * r;
-        }
-    }
+    public float Radius { get { return circumference / 2.0f; } }
+    public float SqrRadius { get { float r = Radius; return r * r; } }
 
     private void Start()
     {
+        objSpaceObjectType = GetComponent<SpaceObjectType>();
         objSpaceObject = GetComponent<SpaceObject>();
 
-        currentMass = initialMass;
+        currentMass = objSpaceObjectType.DefaultMass;
         objSpaceObject.objRigidbody.mass = currentMass;
 
         objSpaceObject.objRigidbody.velocity = initialVelocity;
@@ -77,17 +42,22 @@ public class PhysicsProperties : MonoBehaviour
 
     private void OnValidate()
     {
-        currentMass = initialMass;
         GetComponent<Rigidbody2D>().mass = currentMass;
+        objSpaceObject = GetComponent<SpaceObject>();
+        objSpaceObjectType = GetComponent<SpaceObjectType>();
+        currentMass = objSpaceObjectType.DefaultMass;
+
+        Debug.Log("HELLO: " + objSpaceObjectType);
+
         UpdateRadiusAndScale();
     }
 
-    public void UpdatePhysicsProperties()
-    {
-        lastAcceleration = acceleration;
-        acceleration = (objSpaceObject.objRigidbody.velocity - lastVelocity) / Time.fixedDeltaTime;
-        lastVelocity = objSpaceObject.objRigidbody.velocity;
-    }
+    //public void UpdatePhysicsProperties()
+    //{
+    //    lastAcceleration = acceleration;
+    //    acceleration = (objSpaceObject.objRigidbody.velocity - lastVelocity) / Time.fixedDeltaTime;
+    //    lastVelocity = objSpaceObject.objRigidbody.velocity;
+    //}
 
     public static void AbsorbObject(SpaceObject obj1, SpaceObject obj2)
     {
@@ -106,7 +76,6 @@ public class PhysicsProperties : MonoBehaviour
         }
 
         //Add the impact force.
-
         //We need to experiment with this. This is wrong.
         absorber.objRigidbody.AddRelativeForce(absorbed.objRigidbody.velocity * absorbed.objPhysicsProperties.currentMass, ForceMode2D.Impulse);
 
@@ -114,16 +83,10 @@ public class PhysicsProperties : MonoBehaviour
         absorber.objRigidbody.mass = absorber.objPhysicsProperties.currentMass;
         absorber.objPhysicsProperties.UpdateRadiusAndScale();
 
-        //If the target is absorbed, make the new target the absorber.
-        //if (absorbed == Managers.CameraState.Instance.objCameraMove.ObjTarget)
-        //{
         if (OnAbsorbed != null)
         {
             OnAbsorbed(absorber, absorbed);
         }
-
-            //Debug.Log("NEW TARGET");
-        //}
 
         Destroy(absorbed.gameObject);
     }
@@ -137,7 +100,7 @@ public class PhysicsProperties : MonoBehaviour
     private void UpdateRadius()
     {
         //The radius is in world units.
-        circumference = Mathf.Pow(currentMass / (Mathf.PI * radiusScaleCoefficient), 0.33f);
+        circumference = Mathf.Pow(currentMass / (Mathf.PI * objSpaceObjectType.RadiusScaleMult), 0.33f);
     }
 
     public void UpdateScale()
@@ -148,7 +111,7 @@ public class PhysicsProperties : MonoBehaviour
         //Scale of 1 = imageWidth / PixelsPerWorldUnit
         //New scale = circumference / Scale of 1
 
-        currentScale = circumference / (imageWidth / pixelsPerWorldUnit);
+        currentScale = circumference / (objSpaceObjectType.SpriteWidth / objSpaceObjectType.PixelsPerUnit);
 
         currentScaleAsVec.x = currentScale;
         currentScaleAsVec.y = currentScale;

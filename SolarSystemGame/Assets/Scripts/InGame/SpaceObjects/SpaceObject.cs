@@ -16,6 +16,7 @@ public class SpaceObject : MonoBehaviour
     [HideInInspector] public Gravitate objGravitate;
     [HideInInspector] public PhysicsProperties objPhysicsProperties;
     [HideInInspector] public OrbitTracker objOrbitTracker;
+    [HideInInspector] public SpaceObjectType objSpaceObjectType;
 
     private void OnEnable()
     {

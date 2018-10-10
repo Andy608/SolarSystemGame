@@ -22,53 +22,12 @@ public class OrbitData
     private float duration;
     private float deltaDuration;
 
-    public SpaceObject OrbitChild
-    {
-        get
-        {
-            return orbitChild;
-        }
-    }
-
-    public Transform ParentTransform
-    {
-        get
-        {
-            return parentTransform;
-        }
-    }
-
-    public Transform ChildTransform
-    {
-        get
-        {
-            return childTransform;
-        }
-    }
-
-    public Vector2 StartDirection
-    {
-        get
-        {
-            return startDirection;
-        }
-    }
-
-    public Vector2 CurrentDirection
-    {
-        get
-        {
-            return currentDirection;
-        }
-    }
-
-    public float Duration
-    {
-        get
-        {
-            return duration;
-        }
-    }
+    public SpaceObject OrbitChild { get { return orbitChild; } }
+    public Transform ParentTransform { get { return parentTransform; } }
+    public Transform ChildTransform { get { return childTransform; } }
+    public Vector2 StartDirection { get { return startDirection; } }
+    public Vector2 CurrentDirection { get { return currentDirection; } }
+    public float Duration { get { return duration; } }
 
     public OrbitData(SpaceObject parent, SpaceObject child)
     {
@@ -94,8 +53,6 @@ public class OrbitData
         currentDirection = childTransform.position - parentTransform.position;
 
         duration += deltaDuration;
-
-        //Debug.Log("Delta: " + deltaDuration + " | Orbit Duration: " + duration);
 
         if (duration <= -FULL_ORBIT || duration >= FULL_ORBIT)
         {
