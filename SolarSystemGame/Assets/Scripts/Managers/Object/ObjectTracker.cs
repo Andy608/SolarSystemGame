@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Managers
 {
@@ -34,7 +35,7 @@ namespace Managers
         private static Vector3 touchPosition = new Vector3();
         private static Vector3 dragPosition = new Vector3();
 
-        public GameObject planetPrefab;
+        private SpaceObject objectPrefab;
 
         public List<SpaceObject> ObjectsInUniverse
         {
@@ -82,6 +83,8 @@ namespace Managers
             InputHandler.OnDragEnded += HandleDragEnded;
 
             PhysicsProperties.OnAbsorbed += HandleAbsorb;
+
+            SpaceObjectUI.OnUISelectionUpdated += UpdateObjectToSpawn;
         }
 
         private void OnDisable()
@@ -96,6 +99,13 @@ namespace Managers
             InputHandler.OnDragEnded -= HandleDragEnded;
 
             PhysicsProperties.OnAbsorbed -= HandleAbsorb;
+
+            SpaceObjectUI.OnUISelectionUpdated -= UpdateObjectToSpawn;
+        }
+
+        private void Start()
+        {
+            InitDefaultObjectToSpawn();
         }
 
         public void RegisterObject(SpaceObject spaceObj)
@@ -240,6 +250,8 @@ namespace Managers
 
         private void HandleTap(Touch touch)
         {
+            if (InputHandler.IsPointerOverUIObject()) return;
+
             //Debug.Log("TAP");
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
@@ -253,7 +265,12 @@ namespace Managers
             }
             else
             {
-                SpawnObject(touch).IsJustSpawned = true;
+                SpaceObject obj = SpawnObject(touch);
+                if (obj)
+                {
+                    obj.IsJustSpawned = true;
+                }
+
                 SetSelectedObject(null);
             }
 
@@ -281,6 +298,8 @@ namespace Managers
 
         private void HandleDragBegan(Touch touch)
         {
+            if (InputHandler.IsPointerOverUIObject()) return;
+
             //Debug.Log("DRAG");
             //if (selectedObj)
             //{
@@ -315,6 +334,8 @@ namespace Managers
 
         private void HandleDragHeld(Touch touch)
         {
+            if (InputHandler.IsPointerOverUIObject()) return;
+
             if (selectedObj && selectedObj.IsJustSpawned)
             {
                 //Get distance from selected object to touch position
@@ -330,6 +351,8 @@ namespace Managers
 
         private void HandleDragEnded(Touch touch)
         {
+            if (InputHandler.IsPointerOverUIObject()) return;
+
             //Set the velocity to the vector created in the other drag events
             if (ghostObject && ghostObject.IsJustSpawned)
             {
@@ -389,7 +412,10 @@ namespace Managers
             if (!setTarget)
             {
                 SpaceObject obj = SpawnObject(touch);
-                SetSelectedObject(obj);
+                if (obj)
+                {
+                    SetSelectedObject(obj);
+                }
             }
         }
 
@@ -398,13 +424,27 @@ namespace Managers
             TouchPositionToWorldVector3(touch, ref spawnPosition);
 
             //Spawn the selected GUI object in the future.
-            GameObject obj = Instantiate(planetPrefab/*selectedGUIObj*/, spawnPosition, Quaternion.identity);
+
+            if (!objectPrefab)
+            {
+                Debug.Log("There is no selected object to spawn!");
+                return null;
+            }
+
+            if (MoneyManager.Instance.Funds <= InventoryManager.Instance.GetCost(objectPrefab.objSpaceObjectType.Type))
+            {
+                Debug.Log("Not enough money to spawn in object!");
+                return null;
+            }
+
+            GameObject obj = Instantiate(objectPrefab.gameObject, spawnPosition, Quaternion.identity);
 
             if (obj)
             {
-                UpdateMostMassiveObj();
-
                 SpaceObject objSpaceObj = obj.GetComponent<SpaceObject>();
+                objSpaceObj.objPhysicsProperties.UpdateMass(InventoryManager.Instance.GetMass(objSpaceObj.objSpaceObjectType.Type));
+
+                UpdateMostMassiveObj();
 
                 if (OnObjectSpawned != null)
                 {
@@ -417,6 +457,11 @@ namespace Managers
             {
                 return null;
             }
+        }
+
+        private void UpdateObjectToSpawn(EnumObjectType type, float cost, float mass)
+        {
+            objectPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(type);
         }
 
         private SpaceObject GetObjectAtPosition(Vector3 position)
@@ -473,6 +518,20 @@ namespace Managers
         private void HandleAbsorb(SpaceObject absorber, SpaceObject absorbed)
         {
             UpdateMostMassiveObj();
+        }
+
+        private void InitDefaultObjectToSpawn()
+        {
+            List<EnumObjectType> unlockedObjects = UnlockablesManager.Instance.UnlockedSpaceObjects;
+
+            if (unlockedObjects.Count > 0)
+            {
+                objectPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(unlockedObjects[0]);
+            }
+            else
+            {
+                objectPrefab = null;
+            }
         }
     }
 }

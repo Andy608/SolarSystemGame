@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class OrbitData
 {
+    public delegate void OrbitOccured(SpaceObject parent, SpaceObject orbital);
+    public static event OrbitOccured OnOrbitOccured;
+
+    //Used in-editor
     private static readonly List<Color> USED_COLORS = new List<Color>();
     public readonly Color DEBUG_COLOR = GenerateRandomColor();
+    /////////////////
 
     private static readonly float FULL_ORBIT = 360.0f;
 
@@ -58,9 +63,15 @@ public class OrbitData
         {
             duration = 0.0f;
             Debug.Log("ORBIT!");
+
+            if (OnOrbitOccured != null)
+            {
+                OnOrbitOccured(orbitParent, orbitChild);
+            }
         }
     }
 
+    //Used for in-editor purposes.
     private static Color GenerateRandomColor()
     {
         Color c;

@@ -5,8 +5,12 @@ using UnityEngine.UI;
 
 public class SpaceObjectUI : MonoBehaviour
 {
-    //General
-    private bool isUnlocked;
+    public delegate void UISelectionUpdated(EnumObjectType type, float cost, float mass);
+    public static event UISelectionUpdated OnUISelectionUpdated;
+
+    //Panels
+    [SerializeField] private RectTransform lockedPanel;
+    [SerializeField] private RectTransform unlockedPanel;
 
     //Left Column UI
     [SerializeField] private Text objectName;
@@ -18,7 +22,7 @@ public class SpaceObjectUI : MonoBehaviour
     [SerializeField] private Text objectDescription;
 
     [SerializeField] private Slider massSlider;
-    [SerializeField] private float currentMass;
+    private float currentMass;
 
     [SerializeField] private Button selectButton;
 
@@ -38,26 +42,17 @@ public class SpaceObjectUI : MonoBehaviour
         }
     }
 
-    public bool IsUnlocked
-    {
-        get
-        {
-            return isUnlocked;
-        }
-
-        set
-        {
-            isUnlocked = value;
-        }
-    }
+    public float CurrentMass { get { return currentMass; } }
 
     //Update UI when the object is set for this ui, 
     //and when events for the slider is changed -> update mass and cost, 
     //or when a type of that kind is bought -> update cost.
     //These variables get changed in SpaceObjectType and then the ui is updated here.
-    private void UpdateUI()
+    public void UpdateUI()
     {
-        currentMass = objectInfo.DefaultMass;
+        massSlider.minValue = objectInfo.DefaultMass;
+        massSlider.maxValue = objectInfo.MaxMass;
+        currentMass = Mathf.RoundToInt(massSlider.value);
 
         //Left Column UI
         objectName.text = objectInfo.Name;
@@ -67,18 +62,34 @@ public class SpaceObjectUI : MonoBehaviour
 
         //Right Column UI
         objectDescription.text = objectInfo.Description;
+
+        if (objectInfo.IsUnlocked)
+        {
+            lockedPanel.gameObject.SetActive(false);
+            unlockedPanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            lockedPanel.gameObject.SetActive(true);
+            unlockedPanel.gameObject.SetActive(false);
+        }
+
+        if (OnUISelectionUpdated != null)
+        {
+            OnUISelectionUpdated(objectInfo.Type, GetCost(), currentMass);
+        }
     }
 
     private float GetCost()
     {
-        if (objectInfo)
-        {
-            return objectInfo.CurrentMoneyPerMass * currentMass;
-        }
-        else
-        {
-            Debug.Log("objectType SHOULDN'T BE NULL");
-            return 0.0f;
-        }
+        return objectInfo.CurrentMoneyPerMass * CurrentMass;
+    }
+
+    //When the button to select a space object in the ui is clicked.
+    public void OnUISelectionClicked()
+    {
+       // Managers.InventoryManager.Instance.ObjectToSpawn = Managers.ObjectStore.Instance.GetSpaceObjectPrefab(objectInfo.Type);
+        Debug.Log("UPDATED UI SLECtiON FOR TyPE: " + objectInfo.Type.ToString());
+        UpdateUI();
     }
 }

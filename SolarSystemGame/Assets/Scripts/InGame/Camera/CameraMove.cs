@@ -52,7 +52,7 @@ public class CameraMove : MonoBehaviour
         if (!objTarget) return;
 
         position = transform.position;
-        targetPosition = objTarget.transform.position;
+        //targetPosition = objTarget.transform.position;
         targetPosition.z = position.z;
 
         //In the future maybe change this to ArriveSteering

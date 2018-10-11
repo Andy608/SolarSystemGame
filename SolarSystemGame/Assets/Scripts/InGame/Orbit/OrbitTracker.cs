@@ -82,13 +82,10 @@ public class OrbitTracker : MonoBehaviour
     {
         int i = 0;
 
-        //Debug.Log("UNTRACKED");
-
         for (; i < childList.Count; ++i)
         {
             if (childList[i].OrbitChild.GetInstanceID() == orbiter.GetInstanceID())
             {
-                //Debug.Log("Remove orbit.");
                 childList.RemoveAt(i);
                 break;
             }
@@ -101,8 +98,6 @@ public class OrbitTracker : MonoBehaviour
         {
             foreach (OrbitData data in childList)
             {
-                //Debug.Log("Child Count: " + childList.Count);
-
                 data.UpdateOrbit();
             }
         }

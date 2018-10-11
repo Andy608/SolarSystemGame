@@ -41,7 +41,6 @@ GameObject:
   - component: {fileID: 114057903442421940}
   - component: {fileID: 114995188117102914}
   - component: {fileID: 114512831033089584}
-  - component: {fileID: 114403101862742690}
   - component: {fileID: 114169325612529014}
   m_Layer: 8
   m_Name: Asteroid
@@ -119,25 +118,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ff297a9061d0c489d3a0514f29c926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114403101862742690
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1773634026631720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8be6c5cd947c22d45a3a9189b8046706, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  objectType: 0
-  sprite: {fileID: 21300000, guid: 48c657a60f515404493b6d72523a8d65, type: 3}
-  title: Asteroid
-  description: A simple space rock.
-  moneyPerMass: 0.16
-  moneyPerMassMultiplier: 1.05
-  radiusScaleMultiplier: 1000
-  defaultMass: 100
 --- !u!114 &114512831033089584
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -153,7 +133,7 @@ MonoBehaviour:
   objGravitate: {fileID: 0}
   objPhysicsProperties: {fileID: 0}
   objOrbitTracker: {fileID: 0}
-  objSpaceObjectType: {fileID: 0}
+  objSpaceObjectType: {fileID: 11400000, guid: 6da44d08de27fbf4581803266cd56f4c, type: 2}
 --- !u!114 &114972615496834316
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -308,7 +288,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 48c657a60f515404493b6d72523a8d65, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

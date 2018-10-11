@@ -4,7 +4,6 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpaceObject))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpaceObjectType))]
 public class PhysicsProperties : MonoBehaviour
 {
     public delegate void AbsorbedAction(SpaceObject absorber, SpaceObject absorbed);
@@ -22,17 +21,16 @@ public class PhysicsProperties : MonoBehaviour
 
     private float circumference;
     private SpaceObject objSpaceObject;
-    private SpaceObjectType objSpaceObjectType;
 
     public float Radius { get { return circumference / 2.0f; } }
     public float SqrRadius { get { float r = Radius; return r * r; } }
+    public float CurrentMass { get { return currentMass; } }
 
-    private void Start()
+    private void OnEnable()
     {
-        objSpaceObjectType = GetComponent<SpaceObjectType>();
         objSpaceObject = GetComponent<SpaceObject>();
 
-        currentMass = objSpaceObjectType.DefaultMass;
+        currentMass = objSpaceObject.objSpaceObjectType.DefaultMass;
         objSpaceObject.objRigidbody.mass = currentMass;
 
         objSpaceObject.objRigidbody.velocity = initialVelocity;
@@ -44,10 +42,9 @@ public class PhysicsProperties : MonoBehaviour
     {
         GetComponent<Rigidbody2D>().mass = currentMass;
         objSpaceObject = GetComponent<SpaceObject>();
-        objSpaceObjectType = GetComponent<SpaceObjectType>();
-        currentMass = objSpaceObjectType.DefaultMass;
+        currentMass = objSpaceObject.objSpaceObjectType.DefaultMass;
 
-        Debug.Log("HELLO: " + objSpaceObjectType);
+        Debug.Log("HELLO: " + objSpaceObject.objSpaceObjectType);
 
         UpdateRadiusAndScale();
     }
@@ -100,7 +97,7 @@ public class PhysicsProperties : MonoBehaviour
     private void UpdateRadius()
     {
         //The radius is in world units.
-        circumference = Mathf.Pow(currentMass / (Mathf.PI * objSpaceObjectType.RadiusScaleMult), 0.33f);
+        circumference = Mathf.Pow(currentMass / (Mathf.PI * objSpaceObject.objSpaceObjectType.RadiusScaleMult), 0.33f);
     }
 
     public void UpdateScale()
@@ -111,11 +108,20 @@ public class PhysicsProperties : MonoBehaviour
         //Scale of 1 = imageWidth / PixelsPerWorldUnit
         //New scale = circumference / Scale of 1
 
-        currentScale = circumference / (objSpaceObjectType.SpriteWidth / objSpaceObjectType.PixelsPerUnit);
+        currentScale = circumference / (objSpaceObject.objSpaceObjectType.SpriteWidth / objSpaceObject.objSpaceObjectType.PixelsPerUnit);
 
         currentScaleAsVec.x = currentScale;
         currentScaleAsVec.y = currentScale;
 
         gameObject.transform.localScale = currentScaleAsVec;
+    }
+    
+    public void UpdateMass(float mass)
+    {
+        currentMass = mass;
+        objSpaceObject.objRigidbody.mass = currentMass;
+        UpdateRadiusAndScale();
+
+
     }
 }

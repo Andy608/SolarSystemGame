@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class UnlockablesManager : ManagerBase<ManageRelativity>
+    public class UnlockablesManager : ManagerBase<UnlockablesManager>
     {
         public delegate void UnlockNewObject(EnumObjectType type);
         public static event UnlockNewObject OnUnlockNewObject;
         
         //Holds the list of unlocked items.
-        [SerializeField] private List<EnumObjectType> unlockedObjectList = new List<EnumObjectType>();
+        private List<EnumObjectType> unlockedObjectList = new List<EnumObjectType>();
 
         public List<EnumObjectType> UnlockedSpaceObjects { get { return unlockedObjectList; } }
 
@@ -22,6 +22,11 @@ namespace Managers
         private void OnDisable()
         {
             PhysicsProperties.OnAbsorbed -= SpaceObjectAbsorbed;
+        }
+
+        private void Start()
+        {
+            InitStartingUnlockedObjects();
         }
 
         public bool IsObjectUnlocked(EnumObjectType type)
@@ -48,9 +53,23 @@ namespace Managers
             }
         }
 
+        private void InitStartingUnlockedObjects()
+        {
+            Dictionary<EnumObjectType, SpaceObjectType> spaceObjTypeList = ObjectStore.Instance.SpaceObjTypeList;
+
+            foreach (KeyValuePair<EnumObjectType, SpaceObjectType> currentSpaceObj in spaceObjTypeList)
+            {
+                Debug.Log("Unlocked new object type! Type: " + currentSpaceObj.Key.ToString());
+
+                if (OnUnlockNewObject != null)
+                {
+                    OnUnlockNewObject(currentSpaceObj.Key);
+                }
+            }
+        }
+
         private void UnlockTerrestrialPlanet(SpaceObject absorber, SpaceObject absorbed)
         {
-            Debug.Log("HELLO");
             const string TAG_ASTEROID = "Asteroid";
             if (absorber.tag == TAG_ASTEROID && absorbed.tag == TAG_ASTEROID)
             {

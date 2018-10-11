@@ -5,25 +5,36 @@ using UnityEngine;
 public enum EnumObjectType
 {
     ASTEROID,
-    TERRESTRIAL_PLANET
+    TERRESTRIAL_PLANET,
+    GAS_PLANET
 }
 
 namespace Managers
 {
     public class ObjectStore : ManagerBase<ObjectStore>
     {
-        [SerializeField] private List<SpaceObjectType> spaceObjectList = new List<SpaceObjectType>();
+        [SerializeField] private List<SpaceObject> spaceObjectList = new List<SpaceObject>();
 
         private Dictionary<EnumObjectType, SpaceObjectType> spaceObjTypeList = new Dictionary<EnumObjectType, SpaceObjectType>();
+
+        public Dictionary<EnumObjectType, SpaceObjectType> SpaceObjTypeList
+        {
+            get
+            {
+                return spaceObjTypeList;
+            }
+        }
 
         private void Start()
         {
             Debug.Log("Initializing space object dictionary.");
 
-            foreach (SpaceObjectType currentType in spaceObjectList)
+            foreach (SpaceObject currentSpaceObj in spaceObjectList)
             {
-                Debug.Log("Adding type: " + currentType.Type.ToString());
-                spaceObjTypeList.Add(currentType.Type, currentType);
+                Debug.Log("Adding type: " + currentSpaceObj.objSpaceObjectType.Type.ToString());
+                SpaceObjectType currentRef = Instantiate(currentSpaceObj.objSpaceObjectType);
+
+                spaceObjTypeList.Add(currentRef.Type, currentRef);
             }
         }
 
@@ -34,5 +45,17 @@ namespace Managers
             return obj;
         }
 
+        public SpaceObject GetSpaceObjectPrefab(EnumObjectType type)
+        {
+            foreach (SpaceObject currentSpaceObj in spaceObjectList)
+            {
+                if (currentSpaceObj.objSpaceObjectType.Type == type)
+                {
+                    return currentSpaceObj;
+                }
+            }
+
+            return null;
+        }
     }
 }

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
-public class SpaceObjectType : MonoBehaviour
+[CreateAssetMenu(fileName = "New SpaceObject", menuName = "SpaceObject")]
+public class SpaceObjectType : ScriptableObject
 {
+    //General
+    [SerializeField] private bool isUnlocked;
+
     [SerializeField] private EnumObjectType objectType;
 
     //Randomize in the future.
@@ -23,9 +26,9 @@ public class SpaceObjectType : MonoBehaviour
     [SerializeField] private float radiusScaleMultiplier = 1000.0f;
 
     [SerializeField] private float defaultMass;
-    //[SerializeField] private float maxMass;
+    [SerializeField] private float maxMass;
 
-    //private int buyCounter;
+    private int buyCounter;
 
     public EnumObjectType Type { get { return objectType; } }
     public Sprite Sprite { get { return sprite; } }
@@ -35,18 +38,22 @@ public class SpaceObjectType : MonoBehaviour
     public float CurrentMoneyPerMass { get { return currentMoneyPerMass; } }
     public float PixelsPerUnit { get { return sprite.pixelsPerUnit; } }
     public float SpriteWidth { get { return sprite.texture.width; } } //Might not work with texture atlas
-    public float DefaultMass { get { return defaultMass; } }
 
-    private void Start()
+    public float DefaultMass { get { return defaultMass; } }
+    public float MaxMass { get { return maxMass; } }
+    public bool IsUnlocked { get { return isUnlocked; } set { isUnlocked = value; } }
+
+    private void Awake()
     {
-        GetComponent<SpriteRenderer>().sprite = sprite;
         currentMoneyPerMass = moneyPerMass;
-        //buyCounter = 0;
+        buyCounter = 0;
     }
 
     public void BuyObject()
     {
-        //++buyCounter;
+        //Just fun to have for now.
+        ++buyCounter;
+
         currentMoneyPerMass *= moneyPerMassMultiplier;
     }
 }

@@ -8,6 +8,7 @@ TagManager:
   - Gas Giant
   - Asteroid
   - Terrestrial Planet
+  - Gas Planet
   layers:
   - Default
   - TransparentFX
