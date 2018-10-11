@@ -27,12 +27,15 @@ public class OrbitData
     private float duration;
     private float deltaDuration;
 
+    private int orbitCount;
+
     public SpaceObject OrbitChild { get { return orbitChild; } }
     public Transform ParentTransform { get { return parentTransform; } }
     public Transform ChildTransform { get { return childTransform; } }
     public Vector2 StartDirection { get { return startDirection; } }
     public Vector2 CurrentDirection { get { return currentDirection; } }
     public float Duration { get { return duration; } }
+    public int OrbitCount { get { return orbitCount; } }
 
     public OrbitData(SpaceObject parent, SpaceObject child)
     {
@@ -62,7 +65,9 @@ public class OrbitData
         if (duration <= -FULL_ORBIT || duration >= FULL_ORBIT)
         {
             duration = 0.0f;
+
             Debug.Log("ORBIT!");
+            ++orbitCount;
 
             if (OnOrbitOccured != null)
             {

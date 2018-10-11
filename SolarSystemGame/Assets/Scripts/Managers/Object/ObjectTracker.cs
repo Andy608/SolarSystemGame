@@ -24,9 +24,11 @@ namespace Managers
 
         //The object in the process of being created right now.
         private SpaceObject ghostObject = null;
+        private Color tempGhostColor;
 
         //Holds the current active object.
         private SpaceObject selectedObj = null;
+        private Color tempSelectedColor;
 
         //Holds the most massive object in the scene.
         private SpaceObject mostMassiveObj = null;
@@ -56,6 +58,11 @@ namespace Managers
             {
                 selectedObj = value;
 
+                if (selectedObj)
+                {
+                    tempSelectedColor = selectedObj.GetComponent<SpriteRenderer>().color;
+                }
+
                 if (OnSelectedObjectChanged != null)
                 {
                     OnSelectedObjectChanged();
@@ -84,7 +91,7 @@ namespace Managers
 
             PhysicsProperties.OnAbsorbed += HandleAbsorb;
 
-            SpaceObjectUI.OnUISelectionUpdated += UpdateObjectToSpawn;
+            SpaceObjectUI.OnUIObjectSelected += UpdateObjectToSpawn;
         }
 
         private void OnDisable()
@@ -100,7 +107,7 @@ namespace Managers
 
             PhysicsProperties.OnAbsorbed -= HandleAbsorb;
 
-            SpaceObjectUI.OnUISelectionUpdated -= UpdateObjectToSpawn;
+            SpaceObjectUI.OnUIObjectSelected -= UpdateObjectToSpawn;
         }
 
         private void Start()
@@ -149,16 +156,12 @@ namespace Managers
                             gravitator.ApplyGravity(objToGravitate);
                         }
                     }
-
-                    //gravitator.ObjPhysicsProperties.UpdatePhysicsProperties();
                 }
             }
         }
 
         private void HandlePause()
         {
-            //Debug.Log("PAUSE PAUSE");
-
             for (int i = 0; i < activeObjectsInUniverse.Count; ++i)
             {
                 PauseObj(activeObjectsInUniverse[i]);
@@ -177,8 +180,6 @@ namespace Managers
 
         private void PauseObj(SpaceObject obj)
         {
-            //Debug.Log("PAUSE");
-
             if (pausedObjectsInUniverse == null)
             {
                 pausedObjectsInUniverse = new List<SpaceObject>();
@@ -220,6 +221,7 @@ namespace Managers
             }
 
             ghostObject = obj;
+            tempGhostColor = ghostObject.GetComponent<SpriteRenderer>().color;
             ghostObject.GetComponent<SpriteRenderer>().color = Color.blue;
 
             PauseObj(ghostObject);
@@ -237,7 +239,7 @@ namespace Managers
             }
             else
             {
-                ghostObject.GetComponent<SpriteRenderer>().color = Color.white;
+                ghostObject.GetComponent<SpriteRenderer>().color = tempGhostColor;
             }
 
             if (Managers.GameState.Instance.IsState(Managers.GameState.EnumGameState.RUNNING))
@@ -252,12 +254,8 @@ namespace Managers
         {
             if (InputHandler.IsPointerOverUIObject()) return;
 
-            //Debug.Log("TAP");
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
-
-            //Tap, if intersects with target, make select
-            //Otherwise spawn new object.
 
             if (target)
             {
@@ -273,63 +271,19 @@ namespace Managers
 
                 SetSelectedObject(null);
             }
-
-            //if (selectedObj)
-            //{
-            //    SetSelectedObject(target);
-            //}
-            //else
-            //{
-            //    SpawnAndSelectObject(touch);
-            //    selectedObj.JustSpawned = false;
-            //}
-
-            ///////
-
-            ////Tries to set the target. If it can't, the target is set to null.
-            //bool setTarget = SetSelectedObject(target);//True if selected a target, false if null
-
-            //if (!setTarget)
-            //{
-            //    SpawnAndSelectObject(touch);
-            //    selectedObj.JustSpawned = false;
-            //}
         }
 
         private void HandleDragBegan(Touch touch)
         {
             if (InputHandler.IsPointerOverUIObject()) return;
 
-            //Debug.Log("DRAG");
-            //if (selectedObj)
-            //{
-            //    SetSelectedObject(null);
-            //}
-
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
 
             if (!target)
             {
-                //SpawnAndSelectObject(touch);
-
-                ////Make a ghost method that pauses it in it and changes the image to be slightly transparent
-                //GhostObj(selectedObj);
-
                 GhostObj(SpawnObject(touch));
             }
-
-            //else if (selectedObj.GetComponent<SpaceObject>().JustSpawned)
-            //{
-            //    //Get distance from selected object to touch position
-            //    TouchPositionToWorldVector3(touch, ref dragPosition);
-
-            //    Vector3 distance = dragPosition - selectedObj.transform.position;
-
-            //    //Update the arrow image
-
-            //    Debug.Log("DRAG BEGAN: " + distance);
-            //}
         }
 
         private void HandleDragHeld(Touch touch)
@@ -340,12 +294,6 @@ namespace Managers
             {
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
-
-                //Vector3 distance = dragPosition - selectedObj.transform.position;
-
-                //Update the arrow image
-
-                //Debug.Log("DRAG HELD: " + distance);
             }
         }
 
@@ -369,8 +317,6 @@ namespace Managers
                 ghostObject.objRigidbody.velocity += distance;
 
                 UnGhostObj();
-
-                //Debug.Log("DRAG ENDED: " + distance);
             }
         }
 
@@ -380,13 +326,13 @@ namespace Managers
 
             if (selectedObj)
             {
-                selectedObj.GetComponent<SpriteRenderer>().color = Color.white;
+                selectedObj.GetComponent<SpriteRenderer>().color = tempSelectedColor;
             }
 
             if (target)
             {
-                target.GetComponent<SpriteRenderer>().color = Color.yellow;
                 SelectedObj = target;
+                target.GetComponent<SpriteRenderer>().color = Color.yellow;
                 
                 success = true;
             }
@@ -422,8 +368,6 @@ namespace Managers
         private SpaceObject SpawnObject(Touch touch)
         {
             TouchPositionToWorldVector3(touch, ref spawnPosition);
-
-            //Spawn the selected GUI object in the future.
 
             if (!objectPrefab)
             {
@@ -461,6 +405,7 @@ namespace Managers
 
         private void UpdateObjectToSpawn(EnumObjectType type, float cost, float mass)
         {
+            Debug.Log("UPDATE OBJECT TO SPAWN: " + type);
             objectPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(type);
         }
 

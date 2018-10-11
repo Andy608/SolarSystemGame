@@ -44,12 +44,8 @@ public class SpaceObjectUnlockPopupUI : MonoBehaviour
             OnSpaceObjectUIPopupConfirmed(objectInfo.Type);
         }
 
-        StartCoroutine(ClosePopup());
-    }
+        //Managers.GameState.Instance.RequestUnpause();
 
-    private IEnumerator ClosePopup()
-    {
-        yield return new WaitForEndOfFrame();
-        gameObject.SetActive(false);
+        StartCoroutine(Managers.InventoryManager.Instance.ClosePopup(gameObject));
     }
 }

@@ -77,6 +77,8 @@ namespace Managers
             if (funds < minimumCost)
             {
                 Debug.Log("We're backrupt!");
+                InventoryManager.Instance.ShowLoseState();
+                //Show Lose popup.
             }
         }
     }

@@ -8,6 +8,9 @@ public class SpaceObjectUI : MonoBehaviour
     public delegate void UISelectionUpdated(EnumObjectType type, float cost, float mass);
     public static event UISelectionUpdated OnUISelectionUpdated;
 
+    public delegate void UIObjectSelected(EnumObjectType type, float cost, float mass);
+    public static event UIObjectSelected OnUIObjectSelected;
+
     //Panels
     [SerializeField] private RectTransform lockedPanel;
     [SerializeField] private RectTransform unlockedPanel;
@@ -91,5 +94,10 @@ public class SpaceObjectUI : MonoBehaviour
        // Managers.InventoryManager.Instance.ObjectToSpawn = Managers.ObjectStore.Instance.GetSpaceObjectPrefab(objectInfo.Type);
         Debug.Log("UPDATED UI SLECtiON FOR TyPE: " + objectInfo.Type.ToString());
         UpdateUI();
+
+        if (OnUIObjectSelected != null)
+        {
+            OnUIObjectSelected(objectInfo.Type, GetCost(), currentMass);
+        }
     }
 }

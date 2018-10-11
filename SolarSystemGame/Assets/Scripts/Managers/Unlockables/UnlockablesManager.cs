@@ -36,7 +36,11 @@ namespace Managers
 
         private void SpaceObjectAbsorbed(SpaceObject absorber, SpaceObject absorbed)
         {
-            UnlockTerrestrialPlanet(absorber, absorbed);
+            const string TAG_ASTEROID = "Asteroid";
+            if (absorber.tag == TAG_ASTEROID && absorbed.tag == TAG_ASTEROID)
+            {
+                UnlockTerrestrialPlanet();
+            }
         }
 
         private void UnlockObject(EnumObjectType type)
@@ -68,13 +72,14 @@ namespace Managers
             }
         }
 
-        private void UnlockTerrestrialPlanet(SpaceObject absorber, SpaceObject absorbed)
+        public void UnlockTerrestrialPlanet()
         {
-            const string TAG_ASTEROID = "Asteroid";
-            if (absorber.tag == TAG_ASTEROID && absorbed.tag == TAG_ASTEROID)
-            {
-                UnlockObject(EnumObjectType.TERRESTRIAL_PLANET);
-            }
+            UnlockObject(EnumObjectType.TERRESTRIAL_PLANET);
+        }
+
+        public void UnlockGasPlanet()
+        {
+            UnlockObject(EnumObjectType.GAS_PLANET);
         }
     }
 }

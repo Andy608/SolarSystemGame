@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace Managers
 {
@@ -22,10 +23,17 @@ namespace Managers
 
         //The popup ui
         private SpaceObjectUnlockPopupUI popupUI;
+        private bool isUIShowing = false;
+
+        [SerializeField] private GameObject winUI;
+        [SerializeField] private GameObject loseUI;
 
         //Header UI
         [SerializeField] private Text playerMoneyLabel;
         [SerializeField] private Button settingsButton;
+
+        [SerializeField] private Button exitButton;
+        [SerializeField] private Button pauseButton;
 
         //Space Obj List UI
         [SerializeField] private RectTransform objListContentPanel;
@@ -34,6 +42,8 @@ namespace Managers
         {
             popupUI = Instantiate(prefabSpaceObjPopupUI, mainCanvas.transform, false);
             popupUI.gameObject.SetActive(false);
+            winUI.SetActive(false);
+            loseUI.SetActive(false);
 
             spaceObjPanels.Clear();
             PopulateUIList();
@@ -112,6 +122,7 @@ namespace Managers
                 {
                     popupUI.ObjectInfo = currentPanel.ObjectInfo;
                     popupUI.gameObject.SetActive(true);
+                    //GameState.Instance.RequestPause();
                     break;
                 }
             }
@@ -172,6 +183,50 @@ namespace Managers
         {
             //Eventually convert funds to 10a 10b 10c etc.
             playerMoneyLabel.text = funds.ToString();
+        }
+
+        //TEMP
+        public void ShowWinState()
+        {
+            popupUI.gameObject.SetActive(false);
+            loseUI.SetActive(false);
+            winUI.SetActive(true);
+            isUIShowing = true;
+            GameState.Instance.RequestPause();
+            pauseButton.enabled = false;
+            exitButton.enabled = false;
+        }
+
+        public void ShowLoseState()
+        {
+            if (!isUIShowing)
+            {
+                popupUI.gameObject.SetActive(false);
+                loseUI.SetActive(true);
+                isUIShowing = true;
+                pauseButton.enabled = false;
+                exitButton.enabled = false;
+                GameState.Instance.RequestPause();
+            }
+        }
+
+        public void OnWinContinueClicked()
+        {
+            GameState.Instance.RequestUnpause();
+            StartCoroutine(ClosePopup(winUI));
+            pauseButton.enabled = true;
+            exitButton.enabled = true;
+        }
+
+        public void OnGoToMainMenuClicked()
+        {
+            SceneManager.LoadScene("TitleScene");
+        }
+
+        public IEnumerator ClosePopup(GameObject popup)
+        {
+            yield return new WaitForEndOfFrame();
+            popup.SetActive(false);
         }
     }
 }

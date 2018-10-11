@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Shouldn't be called OrbitTracker. Should be called SpaceObjectOrbit
 [RequireComponent(typeof(SpaceObject))]
 public class OrbitTracker : MonoBehaviour
 {
