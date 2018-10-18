@@ -44,7 +44,7 @@ public class PhysicsProperties : MonoBehaviour
         objSpaceObject = GetComponent<SpaceObject>();
         currentMass = objSpaceObject.objSpaceObjectType.DefaultMass;
 
-        Debug.Log("HELLO: " + objSpaceObject.objSpaceObjectType);
+        //Debug.Log("HELLO: " + objSpaceObject.objSpaceObjectType);
 
         UpdateRadiusAndScale();
     }

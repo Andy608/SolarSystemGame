@@ -63,7 +63,11 @@ namespace Managers
 
             foreach (KeyValuePair<EnumObjectType, SpaceObjectType> currentSpaceObj in spaceObjTypeList)
             {
-                Debug.Log("Unlocked new object type! Type: " + currentSpaceObj.Key.ToString());
+                if (currentSpaceObj.Value.IsUnlocked)
+                {
+                    Debug.Log("Unlocked new object type! Type: " + currentSpaceObj.Key.ToString());
+                    unlockedObjectList.Add(currentSpaceObj.Key);
+                }
 
                 if (OnUnlockNewObject != null)
                 {

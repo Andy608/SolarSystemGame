@@ -14,7 +14,7 @@ public class OrbitTrackerEditor : Editor
         //Getting a Field of View Reference
         OrbitTracker orbitTracker = (OrbitTracker)target;
 
-        foreach (OrbitData data in orbitTracker.ChildList)
+        foreach (OrbitData data in orbitTracker.ParentList)
         {
             startDirection = data.StartDirection;
             currentDirection = data.CurrentDirection;

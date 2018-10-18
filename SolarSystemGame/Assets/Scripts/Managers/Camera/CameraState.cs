@@ -2,179 +2,246 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EnumCameraFollow
+{
+    //Follows the most massive object in the scene
+    FOLLOW_BIGGEST,
+
+    //Follows the selected object in the scene.
+    FOLLOW_SELECTED,
+
+    //Calculates the average of all the objects in the scene and follows that point.
+    FOLLOW_AVERAGE,
+
+    //Does not follow an object, the player can use two fingers to move around.
+    NO_FOLLOW
+}
+
 namespace Managers
 {
     public class CameraState : ManagerBase<CameraState>
     {
-        public delegate void FollowBiggestAction();
-        public static event FollowBiggestAction OnFollowBiggest;
+        public delegate void CameraTargetChangedAction();
+        public static event CameraTargetChangedAction OnCameraTargetChanged;
 
-        public delegate void FollowSelectedAction();
-        public static event FollowSelectedAction OnFollowSelected;
+        public delegate void CameraStateChangeAction(EnumCameraFollow cameraFollowType);
+        public static event CameraStateChangeAction OnCameraStateChange;
 
-        public delegate void FollowAverageAction();
-        public static event FollowAverageAction OnFollowAverage;
+        [SerializeField] private EnumCameraFollow currentCameraFollowType = EnumCameraFollow.FOLLOW_BIGGEST;
+        [SerializeField] private Camera gameCamera;
+        private Transform gameCameraTransform;
 
-        public delegate void NoFollowAction();
-        public static event NoFollowAction OnNoFollow;
+        private CameraZoom objCameraZoom;
 
-        public enum EnumCameraState
-        {
-            //Follows the most massive object in the scene
-            FOLLOW_BIGGEST,
+        private GameObject objTarget;
+        private Transform objTargetTransform;
 
-            //Follows the selected object in the scene.
-            FOLLOW_SELECTED,
+        private Vector3 currentPosition;
+        private Vector3 targetPosition = Vector3.zero;
+        private Vector3 followVelocity = Vector3.zero;
+        private float smoothTime = 0.6f;
 
-            //Calculates the average of all the objects in the scene and follows that point.
-            FOLLOW_AVERAGE,
+        private GameObject averageObj = null;
+        private GameObject noTargetObj = null;
 
-            //Does not follow an object, the player can use two fingers to move around.
-            NO_FOLLOW
-        }
+        [SerializeField] private GameObject targetObjPrefab;
 
-        [SerializeField] private EnumCameraState currentCameraState = EnumCameraState.FOLLOW_BIGGEST;
-
-        [HideInInspector] public Camera gameCamera;
-        [HideInInspector] public CameraMove objCameraMove;
-        [HideInInspector] public CameraZoom objCameraZoom;
+        public GameObject Target { get { return objTarget; } }
+        public GameObject AverageObj { get { return averageObj; } }
+        public GameObject NoTargetObj { get { return noTargetObj; } }
+        public CameraZoom CameraZoom { get { return objCameraZoom; } }
 
         private void Start()
         {
-            gameCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-            objCameraMove = gameCamera.GetComponent<CameraMove>();
+            InitTargetObjects();
+            objTarget = noTargetObj;
+
+            objTargetTransform = objTarget.transform;
+            gameCameraTransform = gameCamera.transform;
+
             objCameraZoom = gameCamera.GetComponent<CameraZoom>();
-            FireCameraStateEvent();
+            FireStateChangedEvent();
         }
 
         private void OnValidate()
         {
-            FireCameraStateEvent();
+            FireStateChangedEvent();
         }
 
         private void OnEnable()
         {
             ObjectTracker.OnObjectSpawned += OnObjectSpawned;
+            PhysicsProperties.OnAbsorbed += OnObjectAbsorbed;
+            ObjectTracker.OnSelectedObjectChanged += FireStateChangedEvent;
 
-            PhysicsProperties.OnAbsorbed += OnBiggestTargetAbsorbed;
-            ObjectTracker.OnObjectSpawned += OnBiggestTargetUpdate;
-
-            PhysicsProperties.OnAbsorbed += OnSelectedTargetAbsorbed;
-            ObjectTracker.OnSelectedObjectChanged += OnSelectedTargetChanged;
+            OnCameraStateChange += SetObjectTarget;
         }
 
         private void OnDisable()
         {
             ObjectTracker.OnObjectSpawned -= OnObjectSpawned;
+            PhysicsProperties.OnAbsorbed -= OnObjectAbsorbed;
+            ObjectTracker.OnSelectedObjectChanged -= FireStateChangedEvent;
 
-            PhysicsProperties.OnAbsorbed -= OnBiggestTargetAbsorbed;
-            ObjectTracker.OnObjectSpawned -= OnBiggestTargetUpdate;
-
-            PhysicsProperties.OnAbsorbed -= OnSelectedTargetAbsorbed;
-            ObjectTracker.OnSelectedObjectChanged -= OnSelectedTargetChanged;
+            OnCameraStateChange -= SetObjectTarget;
         }
 
-        public EnumCameraState CurrentCameraState
+        private void InitTargetObjects()
+        {
+            noTargetObj = Instantiate(targetObjPrefab);
+            noTargetObj.name = "(NoTarget) Camera Target";
+
+            averageObj = Instantiate(targetObjPrefab);
+            averageObj.name = "(Average) Camera Target";
+        }
+
+        private void FixedUpdate()
+        {
+            UpdateAverageObject();
+
+            currentPosition = gameCameraTransform.position;
+            targetPosition = objTargetTransform.position;
+            targetPosition.z = currentPosition.z;
+
+            //In the future maybe change this to ArriveSteering
+            currentPosition = Vector3.SmoothDamp(currentPosition, targetPosition, ref followVelocity, smoothTime);
+
+            gameCameraTransform.position = currentPosition;
+        }
+
+        public void UpdateAverageObject()
+        {
+            List<SpaceObject> objectsInUniverse = ObjectTracker.Instance.ObjectsInUniverse;
+
+            if (objectsInUniverse.Count == 0)
+            {
+                averageObj.transform.position = Vector3.zero;
+            }
+            else
+            {
+                Vector3 position = Vector3.zero;
+                float massTotal = 0.0f;
+                float objCount = objectsInUniverse.Count;
+
+                foreach (SpaceObject obj in objectsInUniverse)
+                {
+                    position += obj.transform.position * obj.objRigidbody.mass;
+                    massTotal += obj.objRigidbody.mass;
+                }
+
+                position /= (objCount + massTotal);
+                averageObj.transform.position = position;
+            }
+        }
+
+        public void UpdateNoTargetObject(Vector3 offset)
+        {
+            noTargetObj.transform.position += offset;
+        }
+
+        private void SetObjectTarget(EnumCameraFollow cameraState)
+        {
+            GameObject newTarget;
+            SpaceObject temp;
+
+            switch (cameraState)
+            {
+                case EnumCameraFollow.FOLLOW_BIGGEST:
+                    temp = Managers.ObjectTracker.Instance.MostMassiveObj;
+                    newTarget = temp ? temp.gameObject : noTargetObj;
+                    break;
+                case EnumCameraFollow.FOLLOW_SELECTED:
+                    temp = Managers.ObjectTracker.Instance.SelectedObj;
+                    newTarget = temp ? temp.gameObject : noTargetObj;
+                    break;
+                case EnumCameraFollow.FOLLOW_AVERAGE:
+                    newTarget = averageObj;
+                    break;
+                case EnumCameraFollow.NO_FOLLOW:
+                default:
+                    newTarget = noTargetObj;
+                    break;
+            }
+
+            if (objTarget != newTarget)
+            {
+                if (!newTarget)
+                {
+                    Debug.Log("There is 0 objs in the universe. :o");
+                    SetTarget(noTargetObj);
+                }
+                else
+                {
+                    SetTarget(newTarget);
+                }
+
+                objTargetTransform = objTarget.transform;
+
+                if (OnCameraTargetChanged != null)
+                {
+                    OnCameraTargetChanged();
+                }
+            }
+        }
+
+        public EnumCameraFollow CurrentCameraState
         {
             get
             {
-                return currentCameraState;
+                return currentCameraFollowType;
             }
 
             set
             {
-                if (currentCameraState != value)
+                if (currentCameraFollowType != value)
                 {
-                    currentCameraState = value;
-                    FireCameraStateEvent();
+                    currentCameraFollowType = value;
+                    FireStateChangedEvent();
                 }
             }
         }
 
-        public bool IsState(EnumCameraState state)
+        public bool IsState(EnumCameraFollow state)
         {
-            return currentCameraState == state;
+            return currentCameraFollowType == state;
         }
 
         public void OnObjectSpawned(SpaceObject spawnedObj)
         {
-            //SpaceObject target = objCameraMove.ObjTarget;
-
-            //if (currentCameraState != EnumCameraState.NO_FOLLOW && target)
-            //{
-            //    spawnedObj.objRigidbody.velocity = target.objRigidbody.velocity;
-            //    spawnedObj.objRigidbody.AddRelativeForce(target.objPhysicsProperties.acceleration);
-            //}
-        }
-
-        public void OnBiggestTargetAbsorbed(SpaceObject absorber, SpaceObject absorbed)
-        {
-            if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
+            if (currentCameraFollowType == EnumCameraFollow.FOLLOW_BIGGEST)
             {
-                FireCameraStateEvent();
+                FireStateChangedEvent();
             }
         }
 
-        public void OnBiggestTargetUpdate(SpaceObject spawnedObj)
+        public void OnObjectAbsorbed(SpaceObject absorber, SpaceObject absorbed)
         {
-            if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
+            if (currentCameraFollowType == EnumCameraFollow.FOLLOW_SELECTED)
             {
-                FireCameraStateEvent();
-            }
-        }
-
-        public void OnSelectedTargetAbsorbed(SpaceObject absorber, SpaceObject absorbed)
-        {
-            if (currentCameraState == EnumCameraState.FOLLOW_SELECTED)
-            {
-                if (absorber == objCameraMove.ObjTarget)
+                if (absorber.transform == objTarget)
                 {
                     //Selected got absorbed so we don't follow the selected anymore.
-                    objCameraMove.ObjTarget = absorber;
+                    SetTarget(noTargetObj);
                 }
+            }
+            else if (currentCameraFollowType == EnumCameraFollow.FOLLOW_BIGGEST)
+            {
+                FireStateChangedEvent();
             }
         }
 
-        public void OnSelectedTargetChanged()
+        private void FireStateChangedEvent()
         {
-            if (currentCameraState == EnumCameraState.FOLLOW_SELECTED)
+            if (OnCameraStateChange != null)
             {
-                FireCameraStateEvent();
+                OnCameraStateChange(currentCameraFollowType);
             }
         }
 
-        private void FireCameraStateEvent()
+        private void SetTarget(GameObject target)
         {
-            if (currentCameraState == EnumCameraState.FOLLOW_BIGGEST)
-            {
-                if (OnFollowBiggest != null)
-                {
-                    //Debug.Log("BIGGEST FIRED");
-                    OnFollowBiggest();
-                }
-            }
-            else if (currentCameraState == EnumCameraState.FOLLOW_SELECTED)
-            {
-                if (OnFollowSelected != null)
-                {
-                    //Debug.Log("SELECTED FIRED");
-                    OnFollowSelected();
-                }
-            }
-            else if (currentCameraState == EnumCameraState.FOLLOW_AVERAGE)
-            {
-                if (OnFollowAverage != null)
-                {
-                    OnFollowAverage();
-                }
-            }
-            else if (currentCameraState == EnumCameraState.NO_FOLLOW)
-            {
-                if (OnNoFollow != null)
-                {
-                    OnNoFollow();
-                }
-            }
+            objTarget = target;
+            objTargetTransform = objTarget.transform;
         }
     }
 }

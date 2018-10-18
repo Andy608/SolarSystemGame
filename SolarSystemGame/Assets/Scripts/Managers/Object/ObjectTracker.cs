@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Managers
 {
@@ -22,37 +21,27 @@ namespace Managers
         private List<SpaceObject> activeObjectsInUniverse = new List<SpaceObject>();
         private List<SpaceObject> pausedObjectsInUniverse = new List<SpaceObject>();
 
+        private Color tempGhostColor;
+        private Color tempSelectedColor;
+
         //The object in the process of being created right now.
         private SpaceObject ghostObject = null;
-        private Color tempGhostColor;
-
-        //Holds the current active object.
-        private SpaceObject selectedObj = null;
-        private Color tempSelectedColor;
 
         //Holds the most massive object in the scene.
         private SpaceObject mostMassiveObj = null;
+        private SpaceObject selectedObj = null;
 
         private static Vector3 spawnPosition = new Vector3();
         private static Vector3 touchPosition = new Vector3();
         private static Vector3 dragPosition = new Vector3();
 
-        private SpaceObject objectPrefab;
+        private SpaceObject spawnObjPrefab;
 
-        public List<SpaceObject> ObjectsInUniverse
-        {
-            get
-            {
-                return objectsInUniverse;
-            }
-        }
+        public List<SpaceObject> ObjectsInUniverse { get { return objectsInUniverse; } }
 
         public SpaceObject SelectedObj
         {
-            get
-            {
-                return selectedObj;
-            }
+            get { return selectedObj; }
 
             set
             {
@@ -70,13 +59,7 @@ namespace Managers
             }
         }
 
-        public SpaceObject MostMassiveObj
-        {
-            get
-            {
-                return mostMassiveObj;
-            }
-        }
+        public SpaceObject MostMassiveObj { get { return mostMassiveObj; } }
 
         private void OnEnable()
         {
@@ -257,20 +240,20 @@ namespace Managers
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            if (target)
-            {
-                SetSelectedObject(target);
-            }
-            else
-            {
+            //if (target)
+            //{
+            //    SetSelectedObject(target);
+            //}
+            //else
+            //{
                 SpaceObject obj = SpawnObject(touch);
                 if (obj)
                 {
                     obj.IsJustSpawned = true;
                 }
 
-                SetSelectedObject(null);
-            }
+                //SetSelectedObject(null);
+            //}
         }
 
         private void HandleDragBegan(Touch touch)
@@ -288,8 +271,6 @@ namespace Managers
 
         private void HandleDragHeld(Touch touch)
         {
-            if (InputHandler.IsPointerOverUIObject()) return;
-
             if (selectedObj && selectedObj.IsJustSpawned)
             {
                 //Get distance from selected object to touch position
@@ -299,8 +280,6 @@ namespace Managers
 
         private void HandleDragEnded(Touch touch)
         {
-            if (InputHandler.IsPointerOverUIObject()) return;
-
             //Set the velocity to the vector created in the other drag events
             if (ghostObject && ghostObject.IsJustSpawned)
             {
@@ -320,75 +299,75 @@ namespace Managers
             }
         }
 
-        private bool SetSelectedObject(SpaceObject target)
-        {
-            bool success = false;
+        //private bool SetSelectedObject(SpaceObject target)
+        //{
+        //    bool success = false;
 
-            if (selectedObj)
-            {
-                selectedObj.GetComponent<SpriteRenderer>().color = tempSelectedColor;
-            }
+        //    if (selectedObj)
+        //    {
+        //        selectedObj.GetComponent<SpriteRenderer>().color = tempSelectedColor;
+        //    }
 
-            if (target)
-            {
-                SelectedObj = target;
-                target.GetComponent<SpriteRenderer>().color = Color.yellow;
+        //    if (target)
+        //    {
+        //        SelectedObj = target;
+        //        target.GetComponent<SpriteRenderer>().color = Color.yellow;
                 
-                success = true;
-            }
-            else
-            {
-                SelectedObj = null;
-            }
+        //        success = true;
+        //    }
+        //    else
+        //    {
+        //        SelectedObj = null;
+        //    }
 
-            return success;
-        }
+        //    return success;
+        //}
 
-        private void SpawnAndSelectObject(Touch touch)
-        {
-            //If the tap is on an object, select the object (For now turn it yellow).
-            TouchPositionToWorldVector3(touch, ref touchPosition);
+        //private void SpawnAndSelectObject(Touch touch)
+        //{
+        //    //If the tap is on an object, select the object (For now turn it yellow).
+        //    TouchPositionToWorldVector3(touch, ref touchPosition);
 
-            SpaceObject target = GetObjectAtPosition(touchPosition);
+        //    SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            //Tries to set the target. If it can't, the target is set to null.
-            bool setTarget = SetSelectedObject(target);
+        //    //Tries to set the target. If it can't, the target is set to null.
+        //    bool setTarget = SetSelectedObject(target);
 
-            //If we couldn't set the target, spawn a new obj and set that as the target.
-            if (!setTarget)
-            {
-                SpaceObject obj = SpawnObject(touch);
-                if (obj)
-                {
-                    SetSelectedObject(obj);
-                }
-            }
-        }
+        //    //If we couldn't set the target, spawn a new obj and set that as the target.
+        //    if (!setTarget)
+        //    {
+        //        SpaceObject obj = SpawnObject(touch);
+        //        if (obj)
+        //        {
+        //            SetSelectedObject(obj);
+        //        }
+        //    }
+        //}
 
         private SpaceObject SpawnObject(Touch touch)
         {
             TouchPositionToWorldVector3(touch, ref spawnPosition);
 
-            if (!objectPrefab)
+            if (!spawnObjPrefab)
             {
                 Debug.Log("There is no selected object to spawn!");
                 return null;
             }
 
-            if (MoneyManager.Instance.Funds <= InventoryManager.Instance.GetCost(objectPrefab.objSpaceObjectType.Type))
+            if (MoneyManager.Instance.Funds <= InventoryManager.Instance.GetCost(spawnObjPrefab.objSpaceObjectType.Type))
             {
                 Debug.Log("Not enough money to spawn in object!");
                 return null;
             }
 
-            GameObject obj = Instantiate(objectPrefab.gameObject, spawnPosition, Quaternion.identity);
+            GameObject obj = Instantiate(spawnObjPrefab.gameObject, spawnPosition, Quaternion.identity);
 
             if (obj)
             {
                 SpaceObject objSpaceObj = obj.GetComponent<SpaceObject>();
                 objSpaceObj.objPhysicsProperties.UpdateMass(InventoryManager.Instance.GetMass(objSpaceObj.objSpaceObjectType.Type));
 
-                UpdateMostMassiveObj();
+                UpdateMostMassiveObject();
 
                 if (OnObjectSpawned != null)
                 {
@@ -406,7 +385,7 @@ namespace Managers
         private void UpdateObjectToSpawn(EnumObjectType type, float cost, float mass)
         {
             Debug.Log("UPDATE OBJECT TO SPAWN: " + type);
-            objectPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(type);
+            spawnObjPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(type);
         }
 
         private SpaceObject GetObjectAtPosition(Vector3 position)
@@ -433,7 +412,7 @@ namespace Managers
             position.z = OBJECT_Z_PLANE;
         }
 
-        public void UpdateMostMassiveObj()
+        public void UpdateMostMassiveObject()
         {
             if (objectsInUniverse.Count == 0)
             {
@@ -462,7 +441,7 @@ namespace Managers
 
         private void HandleAbsorb(SpaceObject absorber, SpaceObject absorbed)
         {
-            UpdateMostMassiveObj();
+            UpdateMostMassiveObject();
         }
 
         private void InitDefaultObjectToSpawn()
@@ -471,11 +450,12 @@ namespace Managers
 
             if (unlockedObjects.Count > 0)
             {
-                objectPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(unlockedObjects[0]);
+                spawnObjPrefab = ObjectStore.Instance.GetSpaceObjectPrefab(unlockedObjects[0]);
             }
             else
             {
-                objectPrefab = null;
+                Debug.Log("UH OH The list is empty so we can't set a default spawn object.");
+                spawnObjPrefab = null;
             }
         }
     }

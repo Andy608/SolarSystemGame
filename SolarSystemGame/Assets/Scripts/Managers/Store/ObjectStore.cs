@@ -31,7 +31,7 @@ namespace Managers
 
             foreach (SpaceObject currentSpaceObj in spaceObjectList)
             {
-                Debug.Log("Adding type: " + currentSpaceObj.objSpaceObjectType.Type.ToString());
+                //Debug.Log("Adding type: " + currentSpaceObj.objSpaceObjectType.Type.ToString());
                 SpaceObjectType currentRef = Instantiate(currentSpaceObj.objSpaceObjectType);
 
                 spaceObjTypeList.Add(currentRef.Type, currentRef);

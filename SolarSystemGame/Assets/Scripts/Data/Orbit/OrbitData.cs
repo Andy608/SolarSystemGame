@@ -30,12 +30,25 @@ public class OrbitData
     private int orbitCount;
 
     public SpaceObject OrbitChild { get { return orbitChild; } }
+    public SpaceObject OrbitParent { get { return orbitParent; } }
     public Transform ParentTransform { get { return parentTransform; } }
     public Transform ChildTransform { get { return childTransform; } }
     public Vector2 StartDirection { get { return startDirection; } }
     public Vector2 CurrentDirection { get { return currentDirection; } }
     public float Duration { get { return duration; } }
     public int OrbitCount { get { return orbitCount; } }
+
+    public SpaceObject GetOrbitObj(EnumOrbitalType type)
+    {
+        if (type == EnumOrbitalType.CHILD)
+        {
+            return OrbitChild;
+        }
+        else
+        {
+            return OrbitParent;
+        }
+    }
 
     public OrbitData(SpaceObject parent, SpaceObject child)
     {

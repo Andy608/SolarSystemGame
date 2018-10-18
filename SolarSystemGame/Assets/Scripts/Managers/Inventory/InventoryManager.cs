@@ -102,7 +102,7 @@ namespace Managers
             {
                 if (currentPanel.ObjectInfo.Type == type)
                 {
-                    Debug.Log("Unlock the UI Panel for type: " + currentPanel.ObjectInfo.Type.ToString());
+                    //Debug.Log("Unlock the UI Panel for type: " + currentPanel.ObjectInfo.Type.ToString());
                     currentPanel.ObjectInfo.IsUnlocked = true;
 
                     if (OnSpaceObjectUIChange != null)
@@ -117,7 +117,7 @@ namespace Managers
         {
             foreach (SpaceObjectUI currentPanel in spaceObjPanels)
             {
-                Debug.Log("Type: " + type);
+                //Debug.Log("Type: " + type);
                 if (currentPanel.ObjectInfo.Type == type)
                 {
                     popupUI.ObjectInfo = currentPanel.ObjectInfo;
@@ -171,7 +171,7 @@ namespace Managers
 
             objListContentPanel.sizeDelta = sizeDelta;
 
-            Debug.Log("SPACE PANEL SIZE: " + spaceObjPanels.Count);
+            //Debug.Log("SPACE PANEL SIZE: " + spaceObjPanels.Count);
         }
 
         private void UpdateUIListElement(SpaceObjectUI spaceObjUI)
