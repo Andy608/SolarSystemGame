@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Terrestrial Planet
   m_EditorClassIdentifier: 
   isUnlocked: 0
-  objectType: 1
+  objectType: 10
   sprite: {fileID: 21300000, guid: 03cfc82171a6a6946950be2a435e7195, type: 3}
   title: Terrestrial Planet
   description: A more interesting space rock.

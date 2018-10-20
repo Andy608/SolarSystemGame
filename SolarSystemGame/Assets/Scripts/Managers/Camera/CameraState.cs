@@ -35,21 +35,25 @@ namespace Managers
 
         private GameObject objTarget;
         private Transform objTargetTransform;
+        private Vector3 objPrevPosition;
+        private Vector3 objVelocity;
+
 
         private Vector3 currentPosition;
         private Vector3 targetPosition = Vector3.zero;
-        private Vector3 followVelocity = Vector3.zero;
-        private float smoothTime = 0.6f;
 
-        private GameObject averageObj = null;
+        //Make camera smooth in the future. Come back to this
+        //private Vector3 followVelocity = Vector3.zero;
+        //private float smoothTime = 0.6f;
+
         private GameObject noTargetObj = null;
 
         [SerializeField] private GameObject targetObjPrefab;
 
         public GameObject Target { get { return objTarget; } }
-        public GameObject AverageObj { get { return averageObj; } }
         public GameObject NoTargetObj { get { return noTargetObj; } }
         public CameraZoom CameraZoom { get { return objCameraZoom; } }
+        public Vector3 TargetObjVelocity { get { return objVelocity; } }
 
         private void Start()
         {
@@ -57,6 +61,9 @@ namespace Managers
             objTarget = noTargetObj;
 
             objTargetTransform = objTarget.transform;
+            objPrevPosition = objTargetTransform.position;
+            objVelocity = Vector3.zero;
+
             gameCameraTransform = gameCamera.transform;
 
             objCameraZoom = gameCamera.GetComponent<CameraZoom>();
@@ -71,7 +78,7 @@ namespace Managers
         private void OnEnable()
         {
             ObjectTracker.OnObjectSpawned += OnObjectSpawned;
-            PhysicsProperties.OnAbsorbed += OnObjectAbsorbed;
+            UniversePlaySpaceManager.OnObjectDestroyed += OnObjectDestroyed;
             ObjectTracker.OnSelectedObjectChanged += FireStateChangedEvent;
 
             OnCameraStateChange += SetObjectTarget;
@@ -80,7 +87,7 @@ namespace Managers
         private void OnDisable()
         {
             ObjectTracker.OnObjectSpawned -= OnObjectSpawned;
-            PhysicsProperties.OnAbsorbed -= OnObjectAbsorbed;
+            UniversePlaySpaceManager.OnObjectDestroyed -= OnObjectDestroyed;
             ObjectTracker.OnSelectedObjectChanged -= FireStateChangedEvent;
 
             OnCameraStateChange -= SetObjectTarget;
@@ -90,48 +97,29 @@ namespace Managers
         {
             noTargetObj = Instantiate(targetObjPrefab);
             noTargetObj.name = "(NoTarget) Camera Target";
-
-            averageObj = Instantiate(targetObjPrefab);
-            averageObj.name = "(Average) Camera Target";
+            noTargetObj.SetActive(false);
         }
 
         private void FixedUpdate()
         {
-            UpdateAverageObject();
+            objVelocity = objTargetTransform.position - objPrevPosition;
 
             currentPosition = gameCameraTransform.position;
             targetPosition = objTargetTransform.position;
             targetPosition.z = currentPosition.z;
 
             //In the future maybe change this to ArriveSteering
-            currentPosition = Vector3.SmoothDamp(currentPosition, targetPosition, ref followVelocity, smoothTime);
+            currentPosition += (targetPosition - currentPosition) * 0.1f;
 
             gameCameraTransform.position = currentPosition;
+
+            objPrevPosition = objTargetTransform.position;
         }
-
-        public void UpdateAverageObject()
+        
+        public void TranslateCamera(Vector2 newPos)
         {
-            List<SpaceObject> objectsInUniverse = ObjectTracker.Instance.ObjectsInUniverse;
-
-            if (objectsInUniverse.Count == 0)
-            {
-                averageObj.transform.position = Vector3.zero;
-            }
-            else
-            {
-                Vector3 position = Vector3.zero;
-                float massTotal = 0.0f;
-                float objCount = objectsInUniverse.Count;
-
-                foreach (SpaceObject obj in objectsInUniverse)
-                {
-                    position += obj.transform.position * obj.objRigidbody.mass;
-                    massTotal += obj.objRigidbody.mass;
-                }
-
-                position /= (objCount + massTotal);
-                averageObj.transform.position = position;
-            }
+            gameCameraTransform.Translate(newPos);
+            objPrevPosition = gameCameraTransform.transform.position;
         }
 
         public void UpdateNoTargetObject(Vector3 offset)
@@ -155,7 +143,7 @@ namespace Managers
                     newTarget = temp ? temp.gameObject : noTargetObj;
                     break;
                 case EnumCameraFollow.FOLLOW_AVERAGE:
-                    newTarget = averageObj;
+                    newTarget = Managers.UniversePlaySpaceManager.Instance.CenterOfUniverse;
                     break;
                 case EnumCameraFollow.NO_FOLLOW:
                 default:
@@ -214,17 +202,18 @@ namespace Managers
             }
         }
 
-        public void OnObjectAbsorbed(SpaceObject absorber, SpaceObject absorbed)
+        public void OnObjectDestroyed(SpaceObject destroyedObj)
         {
             if (currentCameraFollowType == EnumCameraFollow.FOLLOW_SELECTED)
             {
-                if (absorber.transform == objTarget)
+                if (destroyedObj.transform == objTarget)
                 {
                     //Selected got absorbed so we don't follow the selected anymore.
                     SetTarget(noTargetObj);
                 }
             }
-            else if (currentCameraFollowType == EnumCameraFollow.FOLLOW_BIGGEST)
+            else if (currentCameraFollowType == EnumCameraFollow.FOLLOW_BIGGEST ||
+                currentCameraFollowType == EnumCameraFollow.FOLLOW_AVERAGE)
             {
                 FireStateChangedEvent();
             }

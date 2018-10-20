@@ -5,6 +5,8 @@ using UnityEngine;
 namespace Managers
 {
     //Responsible for holding a list of all the objects in the universe.
+    //Responsible for tracking current selected obj
+    //Responsible for tracking current ghost obj
     public class ObjectTracker : ManagerBase<ObjectTracker>
     {
         public delegate void SelectedObjectChangeAction();
@@ -38,6 +40,7 @@ namespace Managers
         private SpaceObject spawnObjPrefab;
 
         public List<SpaceObject> ObjectsInUniverse { get { return objectsInUniverse; } }
+        public List<SpaceObject> ActiveObjectsInUniverse { get { return activeObjectsInUniverse; } }
 
         public SpaceObject SelectedObj
         {
@@ -72,7 +75,7 @@ namespace Managers
             InputHandler.OnDragHeld += HandleDragHeld;
             InputHandler.OnDragEnded += HandleDragEnded;
 
-            PhysicsProperties.OnAbsorbed += HandleAbsorb;
+            UniversePlaySpaceManager.OnObjectDestroyed += HandleObjectDestroyed;
 
             SpaceObjectUI.OnUIObjectSelected += UpdateObjectToSpawn;
         }
@@ -88,7 +91,7 @@ namespace Managers
             InputHandler.OnDragHeld -= HandleDragHeld;
             InputHandler.OnDragEnded -= HandleDragEnded;
 
-            PhysicsProperties.OnAbsorbed -= HandleAbsorb;
+            UniversePlaySpaceManager.OnObjectDestroyed -= HandleObjectDestroyed;
 
             SpaceObjectUI.OnUIObjectSelected -= UpdateObjectToSpawn;
         }
@@ -103,7 +106,7 @@ namespace Managers
             objectsInUniverse.Add(spaceObj);
             activeObjectsInUniverse.Add(spaceObj);
 
-            if (Managers.GameState.Instance.IsState(GameState.EnumGameState.PAUSED))
+            if (GameState.Instance.IsState(GameState.EnumGameState.PAUSED))
             {
                 PauseObj(spaceObj);
             }
@@ -124,7 +127,7 @@ namespace Managers
 
         private void FixedUpdate()
         {
-            if (Managers.GameState.Instance.IsState(GameState.EnumGameState.RUNNING))
+            if (GameState.Instance.IsState(GameState.EnumGameState.RUNNING))
             {
                 for (int i = 0; i < activeObjectsInUniverse.Count; ++i)
                 {
@@ -206,6 +209,7 @@ namespace Managers
             ghostObject = obj;
             tempGhostColor = ghostObject.GetComponent<SpriteRenderer>().color;
             ghostObject.GetComponent<SpriteRenderer>().color = Color.blue;
+            ghostObject.GetComponent<OrbitTrajectory>().Show();
 
             PauseObj(ghostObject);
         }
@@ -225,7 +229,9 @@ namespace Managers
                 ghostObject.GetComponent<SpriteRenderer>().color = tempGhostColor;
             }
 
-            if (Managers.GameState.Instance.IsState(Managers.GameState.EnumGameState.RUNNING))
+            ghostObject.GetComponent<OrbitTrajectory>().Hide();
+
+            if (GameState.Instance.IsState(GameState.EnumGameState.RUNNING))
             {
                 UnPauseObj(ghostObject);
             }
@@ -240,20 +246,20 @@ namespace Managers
             TouchPositionToWorldVector3(touch, ref touchPosition);
             SpaceObject target = GetObjectAtPosition(touchPosition);
 
-            //if (target)
-            //{
-            //    SetSelectedObject(target);
-            //}
-            //else
-            //{
+            if (target)
+            {
+                SetSelectedObject(target);
+            }
+            else
+            {
                 SpaceObject obj = SpawnObject(touch);
                 if (obj)
                 {
                     obj.IsJustSpawned = true;
                 }
 
-                //SetSelectedObject(null);
-            //}
+                SetSelectedObject(null);
+            }
         }
 
         private void HandleDragBegan(Touch touch)
@@ -286,7 +292,7 @@ namespace Managers
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
 
-                Vector2 distance = dragPosition - ghostObject.transform.position;
+                Vector2 distance = ghostObject.transform.position - dragPosition;
 
                 //Remove the arrow image.
 
@@ -299,29 +305,29 @@ namespace Managers
             }
         }
 
-        //private bool SetSelectedObject(SpaceObject target)
-        //{
-        //    bool success = false;
+        private bool SetSelectedObject(SpaceObject target)
+        {
+            bool success = false;
 
-        //    if (selectedObj)
-        //    {
-        //        selectedObj.GetComponent<SpriteRenderer>().color = tempSelectedColor;
-        //    }
+            if (selectedObj)
+            {
+                selectedObj.GetComponent<SpriteRenderer>().color = tempSelectedColor;
+            }
 
-        //    if (target)
-        //    {
-        //        SelectedObj = target;
-        //        target.GetComponent<SpriteRenderer>().color = Color.yellow;
-                
-        //        success = true;
-        //    }
-        //    else
-        //    {
-        //        SelectedObj = null;
-        //    }
+            if (target)
+            {
+                SelectedObj = target;
+                target.GetComponent<SpriteRenderer>().color = Color.yellow;
 
-        //    return success;
-        //}
+                success = true;
+            }
+            else
+            {
+                SelectedObj = null;
+            }
+
+            return success;
+        }
 
         //private void SpawnAndSelectObject(Touch touch)
         //{
@@ -406,7 +412,7 @@ namespace Managers
             return target;
         }
 
-        private void TouchPositionToWorldVector3(Touch touch, ref Vector3 position)
+        public void TouchPositionToWorldVector3(Touch touch, ref Vector3 position)
         {
             position = Camera.main.ScreenToWorldPoint(touch.position);
             position.z = OBJECT_Z_PLANE;
@@ -439,7 +445,7 @@ namespace Managers
             }
         }
 
-        private void HandleAbsorb(SpaceObject absorber, SpaceObject absorbed)
+        private void HandleObjectDestroyed(SpaceObject destroyedObj)
         {
             UpdateMostMassiveObject();
         }

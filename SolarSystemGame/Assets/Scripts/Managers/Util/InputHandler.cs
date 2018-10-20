@@ -34,8 +34,8 @@ namespace Managers
 
         private Vector2 dragMovement;
 
-        public float dragMinTime = 0.1f;
-        public float pinchMinTime = 0.1f;
+        public float dragMinTime = 0.01f;
+        public float pinchMinTime = 0.01f;
         private float startTime;
 
         //If movement is greated than maxTapMovement, the tap failed.
@@ -50,16 +50,14 @@ namespace Managers
 
         private void Update()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount > 0)
             {
-                CheckForPinch();
-            }
-            else if (Input.touchCount > 0)
-            {
-                if (!pinchRecognized)
+                if (Input.touchCount == 2)
                 {
-                    CheckForDrag();
+                    CheckForPinch();
                 }
+
+                CheckForDrag();
             }
             else
             {
@@ -72,6 +70,8 @@ namespace Managers
         //First Priority
         private void CheckForPinch()
         {
+            if (dragRecognized) return;
+
             Touch firstTouch = Input.touches[0];
             Touch secondTouch = Input.touches[1];
 
@@ -123,6 +123,8 @@ namespace Managers
         //Second Priority
         private void CheckForDrag()
         {
+            if (pinchRecognized) return;
+
             Touch touch = Input.touches[0];
 
             if (touch.phase == TouchPhase.Began)
@@ -143,7 +145,7 @@ namespace Managers
                     if (OnDragBegan != null)
                     {
                         OnDragBegan(touch);
-                        Debug.Log("DRAG BEGAN");
+                        //Debug.Log("DRAG BEGAN");
                     }
                 }
                 else if (dragRecognized)
@@ -151,7 +153,7 @@ namespace Managers
                     if (OnDragHeld != null)
                     {
                         OnDragHeld(touch);
-                        Debug.Log("DRAG HELD");
+                        //Debug.Log("DRAG HELD");
                     }
                 }
                 else if (dragMovement.sqrMagnitude > sqrMaxTapMovement)
@@ -166,29 +168,28 @@ namespace Managers
                     if (OnDragEnded != null)
                     {
                         OnDragEnded(touch);
-                        Debug.Log("DRAG ENDED");
+                        //Debug.Log("DRAG ENDED");
                     }
                 }
                 else
                 {
                     CheckForTap();
                 }
-
-                //dragRecognized = false;
-                //pinchRecognized = false;
-                //tapFailed = false;
             }
         }
 
         //Last Priority
         private void CheckForTap()
         {
+            if (dragRecognized) return;
+            if (pinchRecognized) return;
+
             if (!tapFailed)
             {
                 if (OnTap != null)
                 {
                     OnTap(Input.touches[0]);
-                    Debug.Log("TAP HAPPENED");
+                    //Debug.Log("TAP HAPPENED");
                 }
             }
         }

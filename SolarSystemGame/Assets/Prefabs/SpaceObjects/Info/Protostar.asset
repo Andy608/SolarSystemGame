@@ -9,15 +9,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8be6c5cd947c22d45a3a9189b8046706, type: 3}
-  m_Name: Gas Planet
+  m_Name: Protostar
   m_EditorClassIdentifier: 
   isUnlocked: 0
-  objectType: 9
+  objectType: 12
   sprite: {fileID: 21300000, guid: 21f1e9346b55d65449c4a4063302efb2, type: 3}
-  title: Gas Planet
-  description: A gaseous planet.
-  moneyPerMass: 0.016
+  title: Protostar
+  description: A newly forming star.
+  moneyPerMass: 0.58
   moneyPerMassMultiplier: 1.05
-  radiusScaleMultiplier: 100
-  defaultMass: 500
-  maxMass: 10000
+  radiusScaleMultiplier: 2000
+  defaultMass: 50000
+  maxMass: 100000

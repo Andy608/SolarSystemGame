@@ -15,7 +15,7 @@ public class Gravitate : MonoBehaviour
     private static readonly float MIN_THRESHOLD = 0.01f;
 
     //Gravitational constant
-    private static readonly float G = 0.0667408f;
+    public static readonly float G = 0.0667408f;
 
     private SpaceObject objSpaceObj;
     private PhysicsProperties objPhysicsProperties;
@@ -32,19 +32,19 @@ public class Gravitate : MonoBehaviour
 
     private void OnEnable()
     {
-        PhysicsProperties.OnAbsorbed += RemoveObjectFromPull;
+        Managers.UniversePlaySpaceManager.OnObjectDestroyed += RemoveObjectFromPull;
     }
 
     private void OnDisable()
     {
-        PhysicsProperties.OnAbsorbed -= RemoveObjectFromPull;
+        Managers.UniversePlaySpaceManager.OnObjectDestroyed -= RemoveObjectFromPull;
     }
 
-    private void RemoveObjectFromPull(SpaceObject absorber, SpaceObject absorbed)
+    private void RemoveObjectFromPull(SpaceObject destroyedObj)
     {
-        if (gravitatingObjects.Contains(absorbed.objGravitate))
+        if (gravitatingObjects.Contains(destroyedObj.objGravitate))
         {
-            gravitatingObjects.Remove(absorbed.objGravitate);
+            gravitatingObjects.Remove(destroyedObj.objGravitate);
         }
     }
 
@@ -59,14 +59,14 @@ public class Gravitate : MonoBehaviour
 
         //Debug.Log("Dist from center: " + distanceFromCenter + " | Distance: " + direction.magnitude);
 
-        if (direction.magnitude > distanceFromCenter)
+        if (direction.sqrMagnitude > distanceFromCenter * distanceFromCenter)
         {
             float gravitationMag = G * (objSpaceObj.objRigidbody.mass * rbToGravitate.mass) / distanceSquared;
             Vector2 force = direction.normalized * gravitationMag;
 
-            rbToGravitate.AddRelativeForce(force, ForceMode2D.Force);
+            rbToGravitate.AddForce(force, ForceMode2D.Force);
 
-            if (force.SqrMagnitude() > MIN_THRESHOLD)
+            if (force.sqrMagnitude > MIN_THRESHOLD)
             {
                 if (!gravitatingObjects.Contains(objToGravitate))
                 {
@@ -98,7 +98,7 @@ public class Gravitate : MonoBehaviour
         else
         {
             //Absorb!
-            PhysicsProperties.AbsorbObject(objSpaceObj, objToGravitate.objSpaceObj);
+            Managers.UniversePlaySpaceManager.AbsorbObject(objSpaceObj, objToGravitate.objSpaceObj);
         }
     }
 }

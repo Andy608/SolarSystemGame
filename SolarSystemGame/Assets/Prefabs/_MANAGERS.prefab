@@ -69,8 +69,10 @@ GameObject:
   - component: {fileID: 114128770384968512}
   - component: {fileID: 114059645300134372}
   - component: {fileID: 114087569019366560}
+  - component: {fileID: 114190679835025278}
+  - component: {fileID: 114735873199081792}
   m_Layer: 0
-  m_Name: ObjectManager
+  m_Name: UniverseManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213,7 +215,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1181929058639754}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.0999955, y: 0.8010704, z: -0.09765625}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4593083335811568}
@@ -299,6 +301,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxTapMovement: 50
   dragMinTime: 0.1
+  pinchMinTime: 0.1
+--- !u!114 &114190679835025278
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1251490470419502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dacd1930bb111e34aa07b7b36eab410e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerObjPrefab: {fileID: 1511035044278662, guid: 9f0466b5085bb614f8489280177cbcfb,
+    type: 2}
 --- !u!114 &114205462388935826
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -347,6 +363,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cd9a14ddb7c23a4eb8fb275a1f1fa66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114735873199081792
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1251490470419502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ddfe38dc250431429a717c725cf44bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114946416818710496
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -381,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238f2f49f6f103e4bbbe9305fe665b06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentCameraFollowType: 0
+  currentCameraFollowType: 2
   gameCamera: {fileID: 0}
   targetObjPrefab: {fileID: 1511035044278662, guid: 9f0466b5085bb614f8489280177cbcfb,
     type: 2}

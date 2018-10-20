@@ -53,7 +53,7 @@ public class OrbitTrail : MonoBehaviour
                 objLineRenderer.SetPosition(i, vertices[i + 1]);
             }
 
-            Debug.Log("VERTICE LENGTH: " + vertices.Count);
+            //Debug.Log("VERTICE LENGTH: " + vertices.Count);
             objLineRenderer.SetPosition(vertices.Count - 1, transform.position);
         }
     }

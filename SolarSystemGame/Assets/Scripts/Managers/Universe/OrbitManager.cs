@@ -27,16 +27,16 @@ namespace Managers
             ++orbitCount;
             orbitLabel.text = orbitCount.ToString();
 
-            if (orbitCount == 5)
-            {
-                UnlockablesManager.Instance.UnlockGasPlanet();
-            }
+            //if (orbitCount == 5)
+            //{
+            //    UnlockablesManager.Instance.UnlockGasGiant();
+            //}
 
-            if (orbitCount == 10)
-            {
-                //You win! (Temporary)
-                InventoryManager.Instance.ShowWinState();
-            }
+            //if (orbitCount == 10)
+            //{
+            //    //You win! (Temporary)
+            //    InventoryManager.Instance.ShowWinState();
+            //}
         }
     }
 }

@@ -9,6 +9,7 @@ TagManager:
   - Asteroid
   - Terrestrial Planet
   - Gas Planet
+  - Protostar
   layers:
   - Default
   - TransparentFX
@@ -45,4 +46,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: SpaceObject
+    uniqueID: 3856282425
     locked: 0

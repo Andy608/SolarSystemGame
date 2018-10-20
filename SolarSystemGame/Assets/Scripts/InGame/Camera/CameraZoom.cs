@@ -5,8 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class CameraZoom : MonoBehaviour
 {
-    private static float UNDEFINED = -1;
-
     public float zoomSpeed = 10.0f;
 
     [SerializeField] private float startingSize = 10.0f;
@@ -15,13 +13,10 @@ public class CameraZoom : MonoBehaviour
     public float minimumSize = 5.0f;
     public float maximumSize = 30.0f;
 
-    private float followVelocity;
-    private float smoothTime = 0.6f;
-
     private Camera objCamera;
 
     private float zoomDist = 0;
-    private float prevZoomDist = UNDEFINED;
+    private float prevZoomDist = 0;
     private float zoomOffset = 0;
 
     private void Start()
@@ -78,28 +73,14 @@ public class CameraZoom : MonoBehaviour
 
     private void Zoom()
     {
+        if (zoomDist == 0) return;
+
         zoomOffset = prevZoomDist / zoomDist;
-        Debug.Log("ZoomDist: " + zoomDist + " prev" + prevZoomDist + " Offset" + zoomOffset);
-
-        //Debug.Log("Initial: " + initialDistance + " current: " + currentDistanceNormalized);
-        //Debug.Log("SIZE: " + currentSize * currentDistanceNormalized);
         UpdateCameraSize(currentSize * zoomOffset);
-    }
-
-
-    private void Update()
-    {
-        //ZoomCamera();
-    }
-
-    private void ZoomCamera()
-    {
-        UpdateCameraSize(currentSize - Input.GetAxis("Mouse ScrollWheel") * zoomSpeed);
     }
 
     private void UpdateCameraSize(float size)
     {
-        //Debug.Log("Size: " + size + " Min: " + minimumSize + " Max: " + maximumSize + " Clamp: " + Mathf.Clamp(size, minimumSize, maximumSize) + " Current: " + currentSize);
         currentSize = Mathf.Lerp(Mathf.Clamp(size, minimumSize, maximumSize), currentSize, Time.deltaTime);
         objCamera.orthographicSize = currentSize;
     }

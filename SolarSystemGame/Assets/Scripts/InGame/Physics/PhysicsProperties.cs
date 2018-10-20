@@ -6,13 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PhysicsProperties : MonoBehaviour
 {
-    public delegate void AbsorbedAction(SpaceObject absorber, SpaceObject absorbed);
-    public static event AbsorbedAction OnAbsorbed;
-
     private float currentScale = 1.0f;
     private Vector3 currentScaleAsVec = new Vector3();
 
-    [SerializeField] private Vector2 initialVelocity = new Vector2();
+    private Vector2 initialVelocity = new Vector2();
     //private Vector2 lastVelocity = new Vector2();
     //private Vector2 lastAcceleration = new Vector2();
     //private Vector2 acceleration = new Vector2();
@@ -24,7 +21,7 @@ public class PhysicsProperties : MonoBehaviour
 
     public float Radius { get { return circumference / 2.0f; } }
     public float SqrRadius { get { float r = Radius; return r * r; } }
-    public float CurrentMass { get { return currentMass; } }
+    public float CurrentMass { get { return currentMass; } set { currentMass = value; } }
 
     private void OnEnable()
     {
@@ -56,39 +53,7 @@ public class PhysicsProperties : MonoBehaviour
     //    lastVelocity = objSpaceObject.objRigidbody.velocity;
     //}
 
-    public static void AbsorbObject(SpaceObject obj1, SpaceObject obj2)
-    {
-        SpaceObject absorber;
-        SpaceObject absorbed;
-
-        if (obj1.objRigidbody.mass >= obj2.objRigidbody.mass)
-        {
-            absorber = obj1;
-            absorbed = obj2;
-        }
-        else
-        {
-            absorber = obj2;
-            absorbed = obj1;
-        }
-
-        //Add the impact force.
-        //We need to experiment with this. This is wrong.
-        absorber.objRigidbody.AddRelativeForce(absorbed.objRigidbody.velocity * absorbed.objPhysicsProperties.currentMass, ForceMode2D.Impulse);
-
-        absorber.objPhysicsProperties.currentMass += absorbed.objPhysicsProperties.currentMass;
-        absorber.objRigidbody.mass = absorber.objPhysicsProperties.currentMass;
-        absorber.objPhysicsProperties.UpdateRadiusAndScale();
-
-        if (OnAbsorbed != null)
-        {
-            OnAbsorbed(absorber, absorbed);
-        }
-
-        Destroy(absorbed.gameObject);
-    }
-
-    private void UpdateRadiusAndScale()
+    public void UpdateRadiusAndScale()
     {
         UpdateRadius();
         UpdateScale();

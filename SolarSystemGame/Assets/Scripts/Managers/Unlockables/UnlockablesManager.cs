@@ -16,12 +16,12 @@ namespace Managers
 
         private void OnEnable()
         {
-            PhysicsProperties.OnAbsorbed += SpaceObjectAbsorbed;
+            UniversePlaySpaceManager.OnAbsorbed += SpaceObjectAbsorbed;
         }
 
         private void OnDisable()
         {
-            PhysicsProperties.OnAbsorbed -= SpaceObjectAbsorbed;
+            UniversePlaySpaceManager.OnAbsorbed -= SpaceObjectAbsorbed;
         }
 
         private void Start()
@@ -39,7 +39,7 @@ namespace Managers
             const string TAG_ASTEROID = "Asteroid";
             if (absorber.tag == TAG_ASTEROID && absorbed.tag == TAG_ASTEROID)
             {
-                UnlockTerrestrialPlanet();
+                UnlockObject(EnumObjectType.TERRESTRIAL_PLANET);
             }
         }
 
@@ -74,16 +74,6 @@ namespace Managers
                     OnUnlockNewObject(currentSpaceObj.Key);
                 }
             }
-        }
-
-        public void UnlockTerrestrialPlanet()
-        {
-            UnlockObject(EnumObjectType.TERRESTRIAL_PLANET);
-        }
-
-        public void UnlockGasPlanet()
-        {
-            UnlockObject(EnumObjectType.GAS_PLANET);
         }
     }
 }
