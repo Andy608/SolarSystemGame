@@ -292,14 +292,14 @@ namespace Managers
                 //Get distance from selected object to touch position
                 TouchPositionToWorldVector3(touch, ref dragPosition);
 
-                Vector2 distance = ghostObject.transform.position - dragPosition;
+                ghostObject.objPhysicsProperties.InitialVelocity = ghostObject.transform.position - dragPosition;
 
                 //Remove the arrow image.
 
                 ghostObject.IsJustSpawned = false;
 
                 //Set the velocity to the distance times a scale factor that works for the game.
-                ghostObject.objRigidbody.velocity += distance;
+                ghostObject.objRigidbody.velocity += ghostObject.objPhysicsProperties.InitialVelocity;
 
                 UnGhostObj();
             }

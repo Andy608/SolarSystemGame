@@ -26,7 +26,7 @@ public class OrbitTrajectory : MonoBehaviour
         Managers.InputHandler.OnDragHeld += UpdateStartingVelocity;
         Managers.InputHandler.OnDragEnded += UpdateStartingVelocity;
 
-        Debug.Log("START");
+        //Debug.Log("START");
         objSpaceObj = GetComponent<SpaceObject>();
         objLineRenderer = objTrail.GetComponent<LineRenderer>();
     }
@@ -41,7 +41,7 @@ public class OrbitTrajectory : MonoBehaviour
     public void Show()
     {
         Managers.GameState.Instance.RequestPause();
-        Debug.Log("SHOW");
+        //Debug.Log("SHOW");
         //Initialize the trajectory.
         objLineRenderer.gameObject.SetActive(true);
     }

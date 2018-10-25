@@ -6,10 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(PhysicsProperties))]
 public class Gravitate : MonoBehaviour
 {
-    public delegate void ObjectEnteredGravitationalPullAction(SpaceObject parent, SpaceObject child);
+    public delegate void ObjectEnteredGravitationalPullAction(SpaceObject firstObj, SpaceObject secondObj);
     public static event ObjectEnteredGravitationalPullAction OnObjectEnteredGravitationalPull;
 
-    public delegate void ObjectExitedGravitationalPullAction(SpaceObject parent, SpaceObject child);
+    public delegate void ObjectExitedGravitationalPullAction(SpaceObject firstObj, SpaceObject secondObj);
     public static event ObjectExitedGravitationalPullAction OnObjectExitedGravitationalPull;
 
     private static readonly float MIN_THRESHOLD = 0.01f;
@@ -20,6 +20,7 @@ public class Gravitate : MonoBehaviour
     private SpaceObject objSpaceObj;
     private PhysicsProperties objPhysicsProperties;
 
+    public SpaceObject ObjSpaceObj { get { return objSpaceObj; } }
     public PhysicsProperties ObjPhysicsProperties { get { return objPhysicsProperties; } }
 
     private List<Gravitate> gravitatingObjects = new List<Gravitate>();

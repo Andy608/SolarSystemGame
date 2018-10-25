@@ -19,6 +19,7 @@ public class PhysicsProperties : MonoBehaviour
     private float circumference;
     private SpaceObject objSpaceObject;
 
+    public Vector2 InitialVelocity { get { return initialVelocity; } set { initialVelocity = value; } }
     public float Radius { get { return circumference / 2.0f; } }
     public float SqrRadius { get { float r = Radius; return r * r; } }
     public float CurrentMass { get { return currentMass; } set { currentMass = value; } }
@@ -30,7 +31,7 @@ public class PhysicsProperties : MonoBehaviour
         currentMass = objSpaceObject.objSpaceObjectType.DefaultMass;
         objSpaceObject.objRigidbody.mass = currentMass;
 
-        objSpaceObject.objRigidbody.velocity = initialVelocity;
+        //objSpaceObject.objRigidbody.velocity = initialVelocity;
 
         UpdateRadiusAndScale();
     }
@@ -86,7 +87,5 @@ public class PhysicsProperties : MonoBehaviour
         currentMass = mass;
         objSpaceObject.objRigidbody.mass = currentMass;
         UpdateRadiusAndScale();
-
-
     }
 }

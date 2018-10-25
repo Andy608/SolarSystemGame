@@ -7,23 +7,32 @@ using UnityEditor;
 public class OrbitTrackerEditor : Editor
 {
     private Vector3 startDirection;
-    private Vector3 currentDirection;
 
     private void OnSceneGUI()
     {
         //Getting a Field of View Reference
         OrbitTracker orbitTracker = (OrbitTracker)target;
 
-        foreach (OrbitData data in orbitTracker.ParentList)
+        foreach (OrbitData data in orbitTracker.ChildList)
         {
             startDirection = data.StartDirection;
-            currentDirection = data.CurrentDirection;
 
             Handles.color = data.DEBUG_COLOR;
             Handles.DrawLine(data.ParentTransform.position, data.ParentTransform.position + startDirection);
 
             Handles.color = data.DEBUG_COLOR;
-            Handles.DrawLine(data.ParentTransform.position, data.ParentTransform.position + currentDirection);
+            Handles.DrawLine(data.ParentTransform.position, data.ChildTransform.position);
+        }
+
+        foreach (OrbitData data in orbitTracker.ParentList)
+        {
+            startDirection = data.StartDirection;
+
+            Handles.color = Color.white;
+            Handles.DrawLine(data.ParentTransform.position, data.ParentTransform.position + startDirection);
+
+            Handles.color = Color.white;
+            Handles.DrawLine(data.ParentTransform.position, data.ChildTransform.position);
         }
     }
 }

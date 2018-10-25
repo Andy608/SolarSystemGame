@@ -46,7 +46,7 @@ namespace Managers
 
             if (objects.Count > 1)
             {
-                Debug.Log("SORTING");
+                //Debug.Log("SORTING");
                 int currentIndex;
                 int otherIndex;
                 int maxIndex;
@@ -64,7 +64,7 @@ namespace Managers
                     }
 
                     //Swap
-                    Debug.Log("SWAPPING");
+                    //Debug.Log("SWAPPING");
                     SpaceObject tempIndex = objects[maxIndex];
                     objects[maxIndex] = objects[currentIndex];
                     objects[currentIndex] = tempIndex;
@@ -80,7 +80,7 @@ namespace Managers
             for (int i = 0; i < n; ++i)
                 s += ("[" + arr[i].objRigidbody.mass.ToString() + "] ");
 
-            Debug.Log(s);
+            //Debug.Log(s);
         }
     }
 }
