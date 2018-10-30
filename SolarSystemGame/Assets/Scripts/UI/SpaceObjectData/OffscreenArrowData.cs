@@ -7,6 +7,9 @@ public class OffscreenArrowData
     private SpaceObject objSpaceObj;
     private Color arrowColor;
 
+    private Color startColor = Color.white;
+    private Color endColor = Color.red;
+
     private Vector2 onScreenPos;
 
     public Color ArrowColor { get { return arrowColor; } set { arrowColor = value; } }
@@ -24,9 +27,14 @@ public class OffscreenArrowData
         onScreenPos.y = y;
     }
 
-    private void UpdateColor()
+    public void UpdateColor()
     {
-        //Change color based on 
-        arrowColor = Color.white;
+        //Change color based on distance to end
+        float maxDistance = Managers.UniversePlaySpaceManager.UNIVERSE_BOUNDS;
+        float diff = Camera.main.ViewportToWorldPoint((OnScreenPos)).magnitude;
+
+        Debug.Log("Diff: " + diff + " Dist: " + maxDistance);
+
+        arrowColor = Color.Lerp(startColor, endColor, diff / maxDistance);
     }
 }

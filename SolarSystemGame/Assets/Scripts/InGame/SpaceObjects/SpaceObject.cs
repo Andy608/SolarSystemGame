@@ -12,18 +12,25 @@ public class SpaceObject : MonoBehaviour
     private bool isPaused = false;
     private bool isSelected = false;
 
+    private Color objectColor;
+
     [HideInInspector] public Rigidbody2D objRigidbody;
     [HideInInspector] public Gravitate objGravitate;
     [HideInInspector] public PhysicsProperties objPhysicsProperties;
     [HideInInspector] public OrbitTracker objOrbitTracker;
+    //[HideInInspector] public OrbitTrail objOrbitTrail;
     public SpaceObjectType objSpaceObjectType;
+
+    public Color ObjectColor { get { return objectColor; } }
 
     private void OnEnable()
     {
+        //objOrbitTrail = transform.GetChild(0).GetComponent<OrbitTrail>();
         objGravitate = GetComponent<Gravitate>();
         objRigidbody = GetComponent<Rigidbody2D>();
         objPhysicsProperties = GetComponent<PhysicsProperties>();
         objOrbitTracker = GetComponent<OrbitTracker>();
+        objectColor = GetComponent<SpriteRenderer>().color;
 
         Managers.ObjectTracker.Instance.RegisterObject(this);
     }

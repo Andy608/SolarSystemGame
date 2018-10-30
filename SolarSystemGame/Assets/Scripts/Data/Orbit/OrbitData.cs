@@ -79,7 +79,7 @@ public class OrbitData
         {
             duration = 0.0f;
 
-            Debug.Log("ORBIT!");
+            //Debug.Log("ORBIT!");
             ++orbitCount;
 
             if (OnOrbitOccured != null)

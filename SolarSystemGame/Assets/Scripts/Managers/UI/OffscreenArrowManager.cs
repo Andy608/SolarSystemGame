@@ -64,7 +64,10 @@ namespace Managers
                 diff.Normalize();
                 float rotationZ = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
 
+                //currentArrowData.UpdateColor();
+
                 currentArrowImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, rotationZ - 180.0f);
+                //currentArrowImage.GetComponent<Image>().color = currentArrowData.ArrowColor;
             }
         }
 

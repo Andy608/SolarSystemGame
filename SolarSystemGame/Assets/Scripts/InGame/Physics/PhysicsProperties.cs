@@ -20,6 +20,7 @@ public class PhysicsProperties : MonoBehaviour
     private SpaceObject objSpaceObject;
 
     public Vector2 InitialVelocity { get { return initialVelocity; } set { initialVelocity = value; } }
+    public float Circumference { get { return circumference; } }
     public float Radius { get { return circumference / 2.0f; } }
     public float SqrRadius { get { float r = Radius; return r * r; } }
     public float CurrentMass { get { return currentMass; } set { currentMass = value; } }
@@ -63,7 +64,7 @@ public class PhysicsProperties : MonoBehaviour
     private void UpdateRadius()
     {
         //The radius is in world units.
-        circumference = Mathf.Pow(currentMass / (Mathf.PI * objSpaceObject.objSpaceObjectType.RadiusScaleMult), 0.33f);
+        circumference = Mathf.Sqrt(currentMass / (Mathf.PI * objSpaceObject.objSpaceObjectType.RadiusScaleMult));
     }
 
     public void UpdateScale()

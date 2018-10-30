@@ -13,7 +13,7 @@ namespace Managers
         public static event ObjectDestroyedEvent OnObjectDestroyed;
 
         //If objects get outside this area, they despawn.
-        private static float UNIVERSE_BOUNDS = 200.0f;
+        public static float UNIVERSE_BOUNDS = 200.0f;
 
         [SerializeField] private GameObject centerObjPrefab;
 

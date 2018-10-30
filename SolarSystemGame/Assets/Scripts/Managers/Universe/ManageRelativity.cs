@@ -55,6 +55,13 @@ namespace Managers
 
                 foreach (SpaceObject obj in ObjectTracker.Instance.ObjectsInUniverse)
                 {
+                    //if (obj.objOrbitTrail != null)
+                    //{
+                        //Debug.Log("HELLO");
+                        //obj.objOrbitTrail.ObjTrailRenderer.Clear();
+                        //obj.objOrbitTrail.ObjTrailRenderer.transform.Translate(translationOffset);
+                    //}
+
                     obj.transform.Translate(translationOffset);
                 }
 
